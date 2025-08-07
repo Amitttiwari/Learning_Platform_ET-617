@@ -94,23 +94,38 @@ async function initDatabase() {
       db.run(`
         CREATE TABLE IF NOT EXISTS clickstream_events (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id INTEGER,
-          session_id TEXT,
           event_type TEXT NOT NULL,
           event_name TEXT NOT NULL,
           component TEXT,
           description TEXT,
           page_url TEXT,
-          course_id INTEGER,
-          content_id INTEGER,
-          event_data TEXT, -- JSON string for additional data
-          ip_address TEXT,
+          course_id TEXT,
+          content_id TEXT,
+          content_title TEXT,
+          content_type TEXT,
+          course_title TEXT,
+          course_context TEXT,
+          action TEXT,
+          score REAL,
+          progress_percentage REAL,
+          time_spent INTEGER,
+          button_name TEXT,
+          form_name TEXT,
+          success BOOLEAN,
+          event_data TEXT,
+          navigation_type TEXT,
+          from_page TEXT,
+          to_page TEXT,
+          search_term TEXT,
+          search_results INTEGER,
+          error_type TEXT,
+          error_message TEXT,
           user_agent TEXT,
-          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
           origin TEXT DEFAULT 'web',
-          FOREIGN KEY (user_id) REFERENCES users (id),
-          FOREIGN KEY (course_id) REFERENCES courses (id),
-          FOREIGN KEY (content_id) REFERENCES course_content (id)
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+          user_id INTEGER,
+          ip_address TEXT,
+          session_id TEXT
         )
       `);
 

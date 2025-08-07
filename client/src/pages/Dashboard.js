@@ -20,7 +20,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = ({ onNavigate }) => {
   const { user } = useAuth();
-  const { trackButtonClick } = useAnalytics();
+  const { trackButtonClick, trackCourseView } = useAnalytics();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -259,6 +259,11 @@ const Dashboard = ({ onNavigate }) => {
 
   const handleContinueLearning = (courseId) => {
     trackButtonClick('Continue Learning', 'Dashboard', { courseId });
+    // Track course view
+    const course = courses.find(c => c.id === courseId);
+    if (course) {
+      trackCourseView(courseId, course.title, 'Dashboard Continue Learning');
+    }
     if (onNavigate) {
       onNavigate('course-detail');
     }

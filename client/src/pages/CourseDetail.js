@@ -14,10 +14,11 @@ import {
   FileText
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import axios from 'axios'; // Added axios import
 
 const CourseDetail = ({ onNavigate }) => {
   const { user } = useAuth();
-  const { trackContentView, trackVideoInteraction, trackProgressUpdate, trackQuizInteraction } = useAnalytics();
+  const { trackCourseView, trackContentModuleView, trackContentView, trackVideoInteraction, trackQuizInteraction, trackProgressUpdate } = useAnalytics();
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState(null);
   const [currentContent, setCurrentContent] = useState(null);
@@ -30,10 +31,25 @@ const CourseDetail = ({ onNavigate }) => {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(null);
 
+  // Assuming courseId is passed as a prop or derived from context
+  const courseId = 1; // Mock course ID for now
+
   useEffect(() => {
-    const fetchCourseData = async () => {
+    const fetchCourse = async () => {
       try {
-        // Mock course data for now
+        setLoading(true);
+        const response = await axios.get(`/api/courses/${courseId}`);
+        setCourse(response.data);
+        
+        // Track course view
+        trackCourseView(courseId, response.data.title, 'Course Detail Page');
+        
+        if (response.data.content && response.data.content.length > 0) {
+          setCurrentContent(response.data.content[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching course:', error);
+        // Set mock data if API fails
         const mockCourse = {
           id: 1,
           title: 'Introduction to Web Development',
@@ -117,19 +133,18 @@ const CourseDetail = ({ onNavigate }) => {
             }
           ]
         };
-
         setCourse(mockCourse);
-        setCurrentContent(mockCourse.content[2]); // Start with JavaScript Introduction
-        setProgress(mockCourse.progress);
-      } catch (error) {
-        console.error('Error fetching course data:', error);
+        trackCourseView(courseId, mockCourse.title, 'Course Detail Page');
+        if (mockCourse.content && mockCourse.content.length > 0) {
+          setCurrentContent(mockCourse.content[0]);
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourseData();
-  }, []);
+    fetchCourse();
+  }, [courseId, trackCourseView]);
 
   // Timer for tracking time spent
   useEffect(() => {
@@ -362,7 +377,11 @@ const CourseDetail = ({ onNavigate }) => {
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 } ${content.completed ? 'bg-green-50 border-green-200' : ''}`}
-                onClick={() => setCurrentContent(content)}
+                onClick={() => {
+                  setCurrentContent(content);
+                  // Track content module view
+                  trackContentModuleView(course.id, content.id, content.title, content.type);
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">

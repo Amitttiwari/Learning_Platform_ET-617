@@ -1,18 +1,55 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 
 const AnalyticsContext = createContext();
 
-export const useAnalytics = () => {
-  const context = useContext(AnalyticsContext);
-  if (!context) {
-    throw new Error('useAnalytics must be used within an AnalyticsProvider');
-  }
-  return context;
-};
+export const useAnalytics = () => useContext(AnalyticsContext);
 
 export const AnalyticsProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
+
+  // Track course view
+  const trackCourseView = (courseId, courseTitle, courseContext = '') => {
+    const event = {
+      event_type: 'course_view',
+      event_name: 'Course viewed',
+      component: 'Course',
+      description: `User viewed course: ${courseTitle}`,
+      course_id: courseId,
+      course_title: courseTitle,
+      course_context: courseContext,
+      page_url: window.location.href,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Course View:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
+
+  // Track content module view
+  const trackContentModuleView = (courseId, moduleId, moduleTitle, moduleType) => {
+    const event = {
+      event_type: 'content_module_view',
+      event_name: 'Content module viewed',
+      component: moduleType.charAt(0).toUpperCase() + moduleType.slice(1),
+      description: `User viewed ${moduleType} module: ${moduleTitle}`,
+      course_id: courseId,
+      content_id: moduleId,
+      content_title: moduleTitle,
+      content_type: moduleType,
+      page_url: window.location.href,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Content Module View:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
   // Track page view
   const trackPageView = (pageName, pageUrl = window.location.href) => {
@@ -31,7 +68,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track content view
   const trackContentView = (courseId, contentId, contentTitle) => {
     const event = {
@@ -51,7 +88,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track video interaction
   const trackVideoInteraction = (courseId, contentId, action) => {
     const event = {
@@ -71,7 +108,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track quiz interaction
   const trackQuizInteraction = (courseId, contentId, action, data = {}) => {
     const event = {
@@ -92,7 +129,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track progress update
   const trackProgressUpdate = (courseId, contentId, progressPercentage, timeSpent) => {
     const event = {
@@ -113,7 +150,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track button click
   const trackButtonClick = (buttonName, component, data = {}) => {
     const event = {
@@ -132,7 +169,7 @@ export const AnalyticsProvider = ({ children }) => {
     sendEventToBackend(event);
     addEvent(event);
   };
-
+  
   // Track form submission
   const trackFormSubmission = (formName, component, success, data = {}) => {
     const event = {
@@ -153,6 +190,64 @@ export const AnalyticsProvider = ({ children }) => {
     addEvent(event);
   };
 
+  // Track navigation
+  const trackNavigation = (fromPage, toPage, navigationType = 'click') => {
+    const event = {
+      event_type: 'navigation',
+      event_name: 'Page navigation',
+      component: 'Navigation',
+      description: `User navigated from ${fromPage} to ${toPage}`,
+      navigation_type: navigationType,
+      from_page: fromPage,
+      to_page: toPage,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Navigation:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
+
+  // Track search
+  const trackSearch = (searchTerm, searchResults = 0) => {
+    const event = {
+      event_type: 'search',
+      event_name: 'Search performed',
+      component: 'Search',
+      description: `User searched for: ${searchTerm}`,
+      search_term: searchTerm,
+      search_results: searchResults,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Search:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
+
+  // Track error
+  const trackError = (errorType, errorMessage, component) => {
+    const event = {
+      event_type: 'error',
+      event_name: 'Error occurred',
+      component: component,
+      description: `Error: ${errorMessage}`,
+      error_type: errorType,
+      error_message: errorMessage,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Error:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
+  
   // Send event to backend
   const sendEventToBackend = async (event) => {
     try {
@@ -161,23 +256,25 @@ export const AnalyticsProvider = ({ children }) => {
       console.error('Error sending event to backend:', error);
     }
   };
-
+  
   // Add event to local state
   const addEvent = (event) => {
     setEvents(prev => [event, ...prev.slice(0, 99)]); // Keep last 100 events
   };
-
+  
   // Get all events
   const getEvents = () => {
     return events;
   };
-
+  
   // Clear events
   const clearEvents = () => {
     setEvents([]);
   };
 
   const value = {
+    trackCourseView,
+    trackContentModuleView,
     trackPageView,
     trackContentView,
     trackVideoInteraction,
@@ -185,6 +282,9 @@ export const AnalyticsProvider = ({ children }) => {
     trackProgressUpdate,
     trackButtonClick,
     trackFormSubmission,
+    trackNavigation,
+    trackSearch,
+    trackError,
     getEvents,
     clearEvents
   };
