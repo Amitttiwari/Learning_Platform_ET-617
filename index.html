@@ -3,60 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ET617 Learning Platform</title>
+    <title>ET617 Learning Platform - Live Demo</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
             padding: 50px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
         .btn {
             display: inline-block;
-            padding: 12px 24px;
-            background: #4CAF50;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            margin: 10px;
-            transition: background 0.3s;
+            border-radius: 25px;
+            margin: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .btn:hover {
-            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .feature-list {
+            text-align: left;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .feature-list li {
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+        .status {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #4CAF50;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎓 ET617 Learning Platform</h1>
-        <p>A comprehensive web-based learning system with clickstream analytics tracking.</p>
+        <p style="font-size: 1.2em; margin-bottom: 30px;">
+            A comprehensive web-based learning system with clickstream analytics tracking.
+        </p>
         
-        <h2>🚀 Live Demo</h2>
-        <p>Your learning platform is deployed and ready!</p>
-        
-        <div>
-            <a href="https://ashwaniiitbb.github.io/et617" class="btn">Visit Frontend</a>
-            <a href="https://learning-platform-backend-knkr.onrender.com" class="btn">API Backend</a>
+        <div class="status">
+            <h2>✅ LIVE & DEPLOYED</h2>
+            <p>Your learning platform is successfully deployed and ready to use!</p>
         </div>
         
-        <h3>✨ Features</h3>
-        <ul style="text-align: left; display: inline-block;">
-            <li>User Registration & Authentication</li>
-            <li>Interactive Course Content</li>
-            <li>Progress Tracking</li>
-            <li>Quiz System</li>
-            <li>Analytics Dashboard</li>
-            <li>CSV Export</li>
-        </ul>
+        <h2>🚀 Access Your Platform</h2>
+        <div>
+            <a href="https://ashwaniiitbb.github.io/et617" class="btn">🎯 Visit Frontend</a>
+            <a href="https://learning-platform-backend-knkr.onrender.com" class="btn">🔧 API Backend</a>
+        </div>
         
-        <h3>🔗 Links</h3>
-        <p>
-            <a href="https://github.com/ashwaniiitbb/et617" class="btn">GitHub Repository</a>
+        <h3>✨ Key Features</h3>
+        <div class="feature-list">
+            <ul>
+                <li>🔐 User Registration & Authentication</li>
+                <li>📚 Interactive Course Content</li>
+                <li>📊 Progress Tracking</li>
+                <li>🧠 Quiz System</li>
+                <li>📈 Analytics Dashboard</li>
+                <li>📥 CSV Export</li>
+                <li>📱 Responsive Design</li>
+            </ul>
+        </div>
+        
+        <h3>🔗 Quick Links</h3>
+        <div>
+            <a href="https://github.com/ashwaniiitbb/et617" class="btn">📁 GitHub Repository</a>
+            <a href="https://learning-platform-backend-knkr.onrender.com/api/health" class="btn">🔍 API Health Check</a>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 0.9em; opacity: 0.8;">
+            Built with ❤️ for ET617 Learning Analytics Assignment
         </p>
     </div>
 </body>
