@@ -1,5 +1,4 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AnalyticsProvider } from './contexts/AnalyticsContext';
 import { Toaster } from 'react-hot-toast';
@@ -11,12 +10,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
-import CourseDetail from './pages/CourseDetail';
-import ContentViewer from './pages/ContentViewer';
 
 // Import components
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Hardcoded API URL - no environment variable needed
@@ -25,71 +20,131 @@ const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
 // Debug: Log hardcoded API URL
 console.log('Hardcoded API URL:', API_URL);
 
-// Protected Route Component
-const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-  
-  return user ? children : <Navigate to="/login" replace />;
+// Simple Navigation Component
+const Navigation = ({ currentPage, setCurrentPage, isAuthenticated, logout }) => {
+  return (
+    <nav className="bg-white shadow-lg fixed top-0 w-full z-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold text-gray-800">🚀 Learning Platform</h1>
+          </div>
+          <div className="flex space-x-4">
+            <button 
+              onClick={() => setCurrentPage('home')}
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                currentPage === 'home' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Home
+            </button>
+            {isAuthenticated ? (
+              <>
+                <button 
+                  onClick={() => setCurrentPage('dashboard')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'dashboard' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('profile')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'profile' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Profile
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('analytics')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'analytics' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Analytics
+                </button>
+                <button 
+                  onClick={logout}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:text-red-900"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setCurrentPage('login')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'login' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Login
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('register')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    currentPage === 'register' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Register
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 };
 
 // Main App Component
 function AppContent() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [currentPage, setCurrentPage] = useState('home');
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <Home />;
+      case 'login':
+        return <Login />;
+      case 'register':
+        return <Register />;
+      case 'dashboard':
+        return isAuthenticated ? <Dashboard /> : <Login />;
+      case 'profile':
+        return isAuthenticated ? <Profile /> : <Login />;
+      case 'analytics':
+        return isAuthenticated ? <Analytics /> : <Login />;
+      default:
+        return <Home />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navigation 
+        currentPage={currentPage} 
+        setCurrentPage={setCurrentPage} 
+        isAuthenticated={isAuthenticated}
+        logout={logout}
+      />
       <main className="pt-16">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          } />
-          <Route path="/analytics" element={
-            <PrivateRoute>
-              <Analytics />
-            </PrivateRoute>
-          } />
-          <Route path="/courses/:courseId" element={
-            <PrivateRoute>
-              <CourseDetail />
-            </PrivateRoute>
-          } />
-          <Route path="/courses/:courseId/content/:contentId" element={
-            <PrivateRoute>
-              <ContentViewer />
-            </PrivateRoute>
-          } />
-        </Routes>
+        {renderPage()}
       </main>
-      <Footer />
     </div>
   );
 }
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AnalyticsProvider>
-          <AppContent />
-          <Toaster position="top-right" />
-        </AnalyticsProvider>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <AnalyticsProvider>
+        <AppContent />
+        <Toaster position="top-right" />
+      </AnalyticsProvider>
+    </AuthProvider>
   );
 }
 
