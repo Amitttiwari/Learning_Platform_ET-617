@@ -251,9 +251,20 @@ export const AnalyticsProvider = ({ children }) => {
   // Send event to backend
   const sendEventToBackend = async (event) => {
     try {
-      await axios.post('/api/analytics/events', event);
+      // Add a longer delay to prevent rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const response = await axios.post('/api/analytics/events', event);
+      console.log('✅ Analytics event sent successfully:', event.event_type);
     } catch (error) {
-      console.error('Error sending event to backend:', error);
+      // Don't log rate limit errors to avoid spam
+      if (error.response && error.response.status === 429) {
+        console.log('⚠️ Rate limited - analytics event skipped');
+      } else if (error.response && error.response.status === 404) {
+        console.log('⚠️ Analytics endpoint not found - event skipped');
+      } else {
+        console.error('Error sending event to backend:', error.message);
+      }
     }
   };
   

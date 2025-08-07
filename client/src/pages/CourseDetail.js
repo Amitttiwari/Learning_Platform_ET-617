@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAnalytics } from '../contexts/AnalyticsContext';
-import { 
-  Play, 
-  CheckCircle, 
-  Clock,
+import {
   ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  FileText,
   Video,
   HelpCircle,
   X,
   Check,
-  BookOpen,
-  FileText
+  BookOpen
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import axios from 'axios'; // Added axios import
@@ -24,24 +24,31 @@ const CourseDetail = ({ onNavigate }) => {
   const [currentContent, setCurrentContent] = useState(null);
   const [progress, setProgress] = useState(0);
   const [timeSpent, setTimeSpent] = useState(0);
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [quizScore, setQuizScore] = useState(null);
+  const hasLoaded = useRef(false);
 
   // Assuming courseId is passed as a prop or derived from context
   const courseId = 1; // Mock course ID for now
 
   useEffect(() => {
+    if (hasLoaded.current) return; // Prevent multiple calls
+    hasLoaded.current = true;
+
     const fetchCourse = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`/api/courses/${courseId}`);
         setCourse(response.data);
         
-        // Track course view
+        // Track course view only once
         trackCourseView(courseId, response.data.title, 'Course Detail Page');
         
         if (response.data.content && response.data.content.length > 0) {
@@ -144,7 +151,7 @@ const CourseDetail = ({ onNavigate }) => {
     };
 
     fetchCourse();
-  }, [courseId, trackCourseView]);
+  }, [courseId]); // Remove trackCourseView from dependencies
 
   // Timer for tracking time spent
   useEffect(() => {
