@@ -1,12 +1,11 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Debug: Log environment variables
-console.log('Environment Check:', {
-  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
-  NODE_ENV: process.env.NODE_ENV,
-  API_URL: process.env.REACT_APP_API_URL || 'http://localhost:5001'
-});
+// Hardcoded API URL - no environment variable needed
+const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
+
+// Debug: Log hardcoded API URL
+console.log('Hardcoded API URL:', API_URL);
 
 // Simple Home component
 const Home = () => (
@@ -20,8 +19,8 @@ const Home = () => (
   }}>
     <h1>🏠 HOME PAGE</h1>
     <p>React Router is working!</p>
-    <p>Environment: {process.env.NODE_ENV}</p>
-    <p>API URL: {process.env.REACT_APP_API_URL || 'Not set'}</p>
+    <p>API URL: {API_URL}</p>
+    <p>✅ Hardcoded - No environment variables needed!</p>
   </div>
 );
 
@@ -37,7 +36,8 @@ const Login = () => (
   }}>
     <h1>🔐 LOGIN PAGE</h1>
     <p>Login page is working!</p>
-    <p>API URL: {process.env.REACT_APP_API_URL || 'Not set'}</p>
+    <p>API URL: {API_URL}</p>
+    <p>✅ Backend connection ready!</p>
   </div>
 );
 

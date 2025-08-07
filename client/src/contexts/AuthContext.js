@@ -17,11 +17,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  // Hardcoded API URL - no environment variable needed
+  const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
+
   // Configure axios defaults
   useEffect(() => {
     // Set base URL for production
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-    axios.defaults.baseURL = apiUrl;
+    axios.defaults.baseURL = API_URL;
 
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
