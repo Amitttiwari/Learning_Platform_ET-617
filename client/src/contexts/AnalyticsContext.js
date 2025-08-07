@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthContext';
 
 const AnalyticsContext = createContext();
 
@@ -13,151 +12,181 @@ export const useAnalytics = () => {
 };
 
 export const AnalyticsProvider = ({ children }) => {
-  const { user } = useAuth();
+  const [events, setEvents] = useState([]);
 
-  const trackEvent = useCallback(async (eventData) => {
-    if (!user) return;
+  // Track page view
+  const trackPageView = (pageName, pageUrl = window.location.href) => {
+    const event = {
+      event_type: 'page_view',
+      event_name: `${pageName} viewed`,
+      component: pageName,
+      description: `User viewed ${pageName} page`,
+      page_url: pageUrl,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Page View:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-    try {
-      await axios.post('/api/analytics/track', {
-        ...eventData,
-        userId: user.id,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Failed to track event:', error);
-    }
-  }, [user]);
+  // Track content view
+  const trackContentView = (courseId, contentId, contentTitle) => {
+    const event = {
+      event_type: 'content_view',
+      event_name: 'Content viewed',
+      component: 'CourseContent',
+      description: `User viewed content: ${contentTitle}`,
+      course_id: courseId,
+      content_id: contentId,
+      content_title: contentTitle,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Content View:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackPageView = useCallback((pageUrl, component, description) => {
-    trackEvent({
-      eventType: 'Page',
-      eventName: 'Page viewed',
-      component,
-      description,
-      pageUrl,
-    });
-  }, [trackEvent]);
+  // Track video interaction
+  const trackVideoInteraction = (courseId, contentId, action) => {
+    const event = {
+      event_type: 'video_interaction',
+      event_name: 'Video interaction',
+      component: 'VideoPlayer',
+      description: `User ${action} video`,
+      course_id: courseId,
+      content_id: contentId,
+      action: action,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Video Interaction:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackButtonClick = useCallback((buttonName, component, additionalData = {}) => {
-    trackEvent({
-      eventType: 'Interaction',
-      eventName: 'Button clicked',
-      component,
-      description: `Button clicked: ${buttonName}`,
-      eventData: additionalData,
-    });
-  }, [trackEvent]);
-
-  const trackFormSubmission = useCallback((formName, component, success, formData = {}) => {
-    trackEvent({
-      eventType: 'Form',
-      eventName: 'Form submitted',
-      component,
-      description: `Form submitted: ${formName} (${success ? 'success' : 'failed'})`,
-      eventData: { formName, success, formData },
-    });
-  }, [trackEvent]);
-
-  const trackCourseView = useCallback((courseId, courseTitle) => {
-    trackEvent({
-      eventType: 'Course',
-      eventName: 'Course viewed',
-      component: 'Course',
-      description: `User viewed course: ${courseTitle}`,
-      courseId,
-    });
-  }, [trackEvent]);
-
-  const trackContentView = useCallback((contentId, contentType, contentTitle, courseId) => {
-    trackEvent({
-      eventType: 'Content',
-      eventName: 'Content viewed',
-      component: contentType.charAt(0).toUpperCase() + contentType.slice(1),
-      description: `User viewed ${contentType}: ${contentTitle}`,
-      contentId,
-      courseId,
-    });
-  }, [trackEvent]);
-
-  const trackVideoInteraction = useCallback((contentId, action, videoData = {}) => {
-    trackEvent({
-      eventType: 'Video',
-      eventName: `Video ${action}`,
-      component: 'Video Player',
-      description: `Video ${action}: ${videoData.title || 'Unknown video'}`,
-      contentId,
-      eventData: videoData,
-    });
-  }, [trackEvent]);
-
-  const trackQuizInteraction = useCallback((contentId, action, quizData = {}) => {
-    trackEvent({
-      eventType: 'Quiz',
-      eventName: `Quiz ${action}`,
+  // Track quiz interaction
+  const trackQuizInteraction = (courseId, contentId, action, data = {}) => {
+    const event = {
+      event_type: 'quiz_interaction',
+      event_name: 'Quiz interaction',
       component: 'Quiz',
-      description: `Quiz ${action}: ${quizData.title || 'Unknown quiz'}`,
-      contentId,
-      eventData: quizData,
-    });
-  }, [trackEvent]);
+      description: `User ${action} quiz`,
+      course_id: courseId,
+      content_id: contentId,
+      action: action,
+      score: data.score,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Quiz Interaction:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackProgressUpdate = useCallback((courseId, contentId, progressPercentage, timeSpent) => {
-    trackEvent({
-      eventType: 'Progress',
-      eventName: 'Progress updated',
-      component: 'Progress Tracker',
-      description: `Progress updated: ${progressPercentage}%`,
-      courseId,
-      contentId,
-      eventData: { progressPercentage, timeSpent },
-    });
-  }, [trackEvent]);
+  // Track progress update
+  const trackProgressUpdate = (courseId, contentId, progressPercentage, timeSpent) => {
+    const event = {
+      event_type: 'progress_update',
+      event_name: 'Progress updated',
+      component: 'ProgressTracker',
+      description: `User updated progress to ${progressPercentage}%`,
+      course_id: courseId,
+      content_id: contentId,
+      progress_percentage: progressPercentage,
+      time_spent: timeSpent,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Progress Update:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackSearch = useCallback((searchTerm, resultsCount) => {
-    trackEvent({
-      eventType: 'Search',
-      eventName: 'Search performed',
-      component: 'Search',
-      description: `Search for: ${searchTerm}`,
-      eventData: { searchTerm, resultsCount },
-    });
-  }, [trackEvent]);
+  // Track button click
+  const trackButtonClick = (buttonName, component, data = {}) => {
+    const event = {
+      event_type: 'button_click',
+      event_name: 'Button clicked',
+      component: component,
+      description: `User clicked ${buttonName} button`,
+      button_name: buttonName,
+      event_data: JSON.stringify(data),
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Button Click:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackNavigation = useCallback((fromPage, toPage) => {
-    trackEvent({
-      eventType: 'Navigation',
-      eventName: 'Page navigation',
-      component: 'Navigation',
-      description: `Navigated from ${fromPage} to ${toPage}`,
-      eventData: { fromPage, toPage },
-    });
-  }, [trackEvent]);
+  // Track form submission
+  const trackFormSubmission = (formName, component, success, data = {}) => {
+    const event = {
+      event_type: 'form_submission',
+      event_name: 'Form submitted',
+      component: component,
+      description: `User submitted ${formName} form (${success ? 'success' : 'failed'})`,
+      form_name: formName,
+      success: success,
+      event_data: JSON.stringify(data),
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      origin: 'web'
+    };
+    
+    console.log('📊 Form Submission:', event);
+    sendEventToBackend(event);
+    addEvent(event);
+  };
 
-  const trackError = useCallback((errorType, errorMessage, pageUrl) => {
-    trackEvent({
-      eventType: 'Error',
-      eventName: 'Error occurred',
-      component: 'Error Handler',
-      description: `${errorType}: ${errorMessage}`,
-      pageUrl,
-      eventData: { errorType, errorMessage },
-    });
-  }, [trackEvent]);
+  // Send event to backend
+  const sendEventToBackend = async (event) => {
+    try {
+      await axios.post('/api/analytics/events', event);
+    } catch (error) {
+      console.error('Error sending event to backend:', error);
+    }
+  };
+
+  // Add event to local state
+  const addEvent = (event) => {
+    setEvents(prev => [event, ...prev.slice(0, 99)]); // Keep last 100 events
+  };
+
+  // Get all events
+  const getEvents = () => {
+    return events;
+  };
+
+  // Clear events
+  const clearEvents = () => {
+    setEvents([]);
+  };
 
   const value = {
-    trackEvent,
     trackPageView,
-    trackButtonClick,
-    trackFormSubmission,
-    trackCourseView,
     trackContentView,
     trackVideoInteraction,
     trackQuizInteraction,
     trackProgressUpdate,
-    trackSearch,
-    trackNavigation,
-    trackError,
+    trackButtonClick,
+    trackFormSubmission,
+    getEvents,
+    clearEvents
   };
 
   return (
