@@ -9,7 +9,9 @@ import {
   Video,
   HelpCircle,
   X,
-  Check
+  Check,
+  BookOpen,
+  FileText
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -35,49 +37,82 @@ const CourseDetail = ({ onNavigate }) => {
         const mockCourse = {
           id: 1,
           title: 'Introduction to Web Development',
-          description: 'Learn the fundamentals of HTML, CSS, and JavaScript to build modern websites.',
+          description: 'Learn the fundamentals of web development including HTML, CSS, and JavaScript. This comprehensive course covers everything from basic markup to interactive web applications.',
           instructor: 'John Doe',
-          totalLessons: 12,
-          completedLessons: 9,
           progress: 75,
-          image: 'https://via.placeholder.com/400x250/3B82F6/FFFFFF?text=Web+Development',
           content: [
             {
               id: 1,
-              title: 'HTML Basics',
-              type: 'video',
-              duration: '15 min',
-              completed: true,
-              videoUrl: 'https://www.youtube.com/embed/UB1O30fR-EE'
+              title: 'Getting Started with HTML',
+              description: 'Learn the basics of HTML markup and document structure',
+              type: 'text',
+              content: 'HTML (HyperText Markup Language) is the standard markup language for creating web pages...',
+              completed: true
             },
             {
               id: 2,
-              title: 'CSS Fundamentals',
+              title: 'HTML Basics Video',
+              description: 'Watch this video to understand HTML fundamentals',
               type: 'video',
-              duration: '20 min',
-              completed: true,
-              videoUrl: 'https://www.youtube.com/embed/1PnVor36_40'
+              videoUrl: 'https://www.youtube.com/embed/UB1O30fR-EE',
+              completed: false
             },
             {
               id: 3,
-              title: 'JavaScript Introduction',
+              title: 'CSS Fundamentals',
+              description: 'Learn CSS styling and layout techniques',
               type: 'video',
-              duration: '25 min',
-              completed: false,
-              videoUrl: 'https://www.youtube.com/embed/W6NZfCO5SIk'
+              videoUrl: 'https://www.youtube.com/embed/1PnVor36_40',
+              completed: false
             },
             {
               id: 4,
-              title: 'HTML Quiz',
-              type: 'quiz',
-              duration: '10 min',
+              title: 'JavaScript Basics',
+              description: 'Introduction to JavaScript programming',
+              type: 'video',
+              videoUrl: 'https://www.youtube.com/embed/W6NZfCO5SIk',
               completed: false
             },
             {
               id: 5,
-              title: 'CSS Quiz',
+              title: 'HTML Quiz',
+              description: 'Test your knowledge of HTML basics',
               type: 'quiz',
-              duration: '10 min',
+              questions: [
+                {
+                  id: 1,
+                  question: 'What does HTML stand for?',
+                  options: ['Hyper Text Markup Language', 'High Tech Modern Language', 'Home Tool Markup Language'],
+                  correctAnswer: 0
+                },
+                {
+                  id: 2,
+                  question: 'Which HTML tag is used to define a paragraph?',
+                  options: ['<p>', '<paragraph>', '<text>'],
+                  correctAnswer: 0
+                }
+              ],
+              completed: false
+            },
+            {
+              id: 6,
+              title: 'CSS Quiz',
+              description: 'Test your knowledge of CSS fundamentals',
+              type: 'quiz',
+              questions: [
+                {
+                  id: 1,
+                  question: 'What does CSS stand for?',
+                  options: ['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style Sheets'],
+                  correctAnswer: 0
+                },
+                {
+                  id: 2,
+                  question: 'Which CSS property controls the text size?',
+                  options: ['font-size', 'text-size', 'font-style'],
+                  correctAnswer: 0
+                }
+              ],
               completed: false
             }
           ]
@@ -270,15 +305,16 @@ const CourseDetail = ({ onNavigate }) => {
           Back to Dashboard
         </button>
         
-        <div className="flex items-center space-x-4">
-          <img 
-            src={course.image} 
-            alt={course.title}
-            className="w-20 h-12 object-cover rounded"
-          />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-            <p className="text-gray-600">by {course.instructor}</p>
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-12 w-12 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
+              <p className="text-gray-600">{course.description}</p>
+              <p className="text-sm text-gray-500">Instructor: {course.instructor}</p>
+            </div>
           </div>
         </div>
         
@@ -319,32 +355,43 @@ const CourseDetail = ({ onNavigate }) => {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Course Content</h2>
           <div className="space-y-2">
             {course.content.map((content) => (
-              <button
+              <div
                 key={content.id}
-                onClick={() => handleContentClick(content)}
-                className={`w-full text-left p-4 rounded-lg border transition-colors ${
-                  currentContent?.id === content.id 
-                    ? 'border-blue-500 bg-blue-50' 
+                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  currentContent?.id === content.id
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
-                }`}
+                } ${content.completed ? 'bg-green-50 border-green-200' : ''}`}
+                onClick={() => setCurrentContent(content)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    {content.type === 'video' ? (
-                      <Video className="h-5 w-5 text-blue-600" />
-                    ) : (
-                      <HelpCircle className="h-5 w-5 text-purple-600" />
-                    )}
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      content.completed 
+                        ? 'bg-green-100 text-green-600' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {content.type === 'video' && <Video className="h-5 w-5" />}
+                      {content.type === 'text' && <FileText className="h-5 w-5" />}
+                      {content.type === 'quiz' && <HelpCircle className="h-5 w-5" />}
+                    </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">{content.title}</h3>
-                      <p className="text-sm text-gray-600">{content.duration}</p>
+                      <h3 className="font-semibold text-gray-900">{content.title}</h3>
+                      <p className="text-sm text-gray-600">{content.description}</p>
                     </div>
                   </div>
-                  {content.completed && (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {content.completed && (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    )}
+                    <span className="text-sm text-gray-500">
+                      {content.type === 'video' && 'Video'}
+                      {content.type === 'text' && 'Text'}
+                      {content.type === 'quiz' && 'Quiz'}
+                    </span>
+                  </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         </div>

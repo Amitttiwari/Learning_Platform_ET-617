@@ -54,8 +54,7 @@ const Dashboard = ({ onNavigate }) => {
             instructor: 'John Doe',
             progress: 75,
             totalLessons: 12,
-            completedLessons: 9,
-            image: 'https://via.placeholder.com/300x200/3B82F6/FFFFFF?text=Web+Dev'
+            completedLessons: 9
           },
           {
             id: 2,
@@ -64,8 +63,7 @@ const Dashboard = ({ onNavigate }) => {
             instructor: 'Jane Smith',
             progress: 45,
             totalLessons: 15,
-            completedLessons: 7,
-            image: 'https://via.placeholder.com/300x200/10B981/FFFFFF?text=JavaScript'
+            completedLessons: 7
           }
         ]);
         setAnalytics({
@@ -362,11 +360,9 @@ const Dashboard = ({ onNavigate }) => {
             {courses.slice(0, 2).map((course) => (
               <div key={course.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center space-x-4">
-                  <img 
-                    src={course.image} 
-                    alt={course.title}
-                    className="w-16 h-12 object-cover rounded"
-                  />
+                  <div className="w-16 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <BookOpen className="h-8 w-8 text-white" />
+                  </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">{course.title}</h3>
                     <p className="text-sm text-gray-600">{course.instructor}</p>
