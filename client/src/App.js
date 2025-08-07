@@ -37,9 +37,20 @@ console.log('Environment Check:', {
   API_URL: process.env.REACT_APP_API_URL || 'http://localhost:5001'
 });
 
+// Simple test component
+const TestComponent = () => {
+  return (
+    <div style={{ padding: '20px', backgroundColor: 'red', color: 'white' }}>
+      <h1>TEST - App is loading!</h1>
+      <p>If you see this, the app is working</p>
+    </div>
+  );
+};
+
 function AppContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <TestComponent />
       <Navbar />
       <main className="flex-grow">
         <Routes>
