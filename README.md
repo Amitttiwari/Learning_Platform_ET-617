@@ -1,66 +1,85 @@
-# Learning Platform with Analytics Tracking
+# ET617 - Interactive Learning Platform
 
-A comprehensive learning management system with interactive content, user authentication, and detailed clickstream analytics tracking. Built with React, Node.js, and SQLite for easy deployment.
+A comprehensive web-based learning system with clickstream analytics tracking.
 
-## Features
+## 🚀 Live Demo
+- **Frontend:** [Your Vercel URL]
+- **Backend:** [Your Render URL]
+
+## ✨ Features
 
 ### 🎓 Learning Features
-- **Interactive Courses**: Text, video, and quiz content
-- **Progress Tracking**: Real-time progress monitoring
-- **Quiz System**: Interactive assessments with scoring
-- **Video Integration**: Embedded video content with tracking
-- **User Authentication**: Secure registration and login system
+- **User Registration & Authentication** - Secure JWT-based login system
+- **Interactive Course Content** - Text, video, and quiz modules
+- **Progress Tracking** - Mark and track learning progress
+- **Quiz System** - Multiple choice questions with scoring
+- **Responsive Design** - Works on desktop and mobile
 
 ### 📊 Analytics & Tracking
-- **Clickstream Analytics**: Track every user interaction
-- **Learning Analytics**: Monitor progress and engagement
-- **Quiz Performance**: Detailed quiz attempt analytics
-- **Time Tracking**: Monitor time spent on content
-- **Export Capabilities**: CSV export of analytics data
+- **Clickstream Analytics** - Track all user interactions
+- **Event Tracking** - Page views, content interactions, video actions
+- **Quiz Performance** - Track quiz attempts and scores
+- **Learning Progress** - Monitor user progress and time spent
+- **CSV Export** - Download analytics data for analysis
 
-### 🎨 User Experience
-- **Modern UI**: Clean, responsive design with Tailwind CSS
-- **Real-time Updates**: Live progress and analytics updates
-- **Mobile Responsive**: Works on all devices
-- **Intuitive Navigation**: Easy-to-use interface
+### 🛠 Technical Features
+- **Modern Tech Stack** - React 18, Node.js, Express, SQLite
+- **Real-time Tracking** - Live analytics updates
+- **Secure Authentication** - JWT tokens with bcrypt password hashing
+- **Database Analytics** - Comprehensive event logging
+- **API Documentation** - RESTful API endpoints
 
-## Tech Stack
+## 🏗 Tech Stack
 
 ### Frontend
-- **React 18** with hooks and context
-- **React Router** for navigation
-- **Tailwind CSS** for styling
-- **Lucide React** for icons
-- **React Hook Form** for form handling
-- **Axios** for API calls
-- **Recharts** for data visualization
+- **React 18** - Modern UI framework
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Utility-first styling
+- **Lucide React** - Beautiful icons
+- **React Hook Form** - Form handling
+- **Axios** - HTTP client
+- **Recharts** - Data visualization
 
 ### Backend
-- **Node.js** with Express
-- **SQLite** database (easy deployment)
-- **JWT** authentication
-- **bcryptjs** for password hashing
-- **Express Validator** for input validation
-- **Helmet** for security headers
+- **Node.js** - Server runtime
+- **Express.js** - Web framework
+- **SQLite** - Database (development)
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
+- **express-validator** - Input validation
+- **Helmet** - Security headers
 
-### Analytics
-- **Custom Analytics Engine**: Built-in clickstream tracking
-- **Event Tracking**: Comprehensive user interaction logging
-- **Performance Metrics**: Quiz scores, time tracking, progress
-- **Data Export**: CSV format for external analysis
+## 📁 Project Structure
 
-## Quick Start
+```
+et617/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Reusable components
+│   │   ├── contexts/       # React contexts
+│   │   ├── pages/          # Page components
+│   │   └── ...
+│   └── package.json
+├── server/                 # Node.js backend
+│   ├── routes/             # API routes
+│   ├── database/           # Database setup
+│   ├── utils/              # Utility functions
+│   └── package.json
+└── package.json            # Root package.json
+```
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+ 
+- Node.js 18+
 - npm or yarn
 
-### Installation
+### Local Development
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd learning-website
+   git clone https://github.com/ashwaniiitbb/et617.git
+   cd et617
    ```
 
 2. **Install dependencies**
@@ -75,41 +94,60 @@ A comprehensive learning management system with interactive content, user authen
 
 4. **Access the application**
    - Frontend: http://localhost:3000
-   - Backend: http://localhost:5000
+   - Backend: http://localhost:5001
 
-### Environment Variables
+## 🌐 Deployment
 
-Create a `.env` file in the server directory:
+### Backend (Render)
+1. Go to [Render.com](https://render.com)
+2. Create new Web Service
+3. Connect GitHub repository
+4. Configure:
+   - Root Directory: `server`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+5. Add environment variables:
+   ```
+   NODE_ENV=production
+   PORT=10000
+   JWT_SECRET=your-secure-secret
+   CLIENT_URL=https://your-frontend-url.vercel.app
+   ```
 
-```env
-NODE_ENV=development
-PORT=5000
-JWT_SECRET=your-secret-key-here
-CLIENT_URL=http://localhost:3000
-```
+### Frontend (Vercel)
+1. Go to [Vercel.com](https://vercel.com)
+2. Create new project
+3. Import GitHub repository
+4. Configure:
+   - Framework: Create React App
+   - Root Directory: `client`
+   - Build Command: `npm run build`
+5. Add environment variable:
+   ```
+   REACT_APP_API_URL=https://your-backend-url.onrender.com
+   ```
 
-## Project Structure
+## 📊 Analytics Features
 
-```
-learning-website/
-├── client/                 # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── contexts/      # React contexts
-│   │   ├── pages/         # Page components
-│   │   └── index.js       # App entry point
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── database/          # Database setup
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   └── index.js           # Server entry point
-├── package.json
-└── README.md
-```
+### Tracked Events
+- **Page Views** - Every page navigation
+- **Content Views** - Video and text content interactions
+- **Video Actions** - Play, pause, seek, volume changes
+- **Quiz Interactions** - Question attempts, submissions, scores
+- **Button Clicks** - All interactive elements
+- **Form Submissions** - Registration, login, profile updates
+- **Search Actions** - Search queries and results
+- **Navigation Events** - Menu clicks, breadcrumb navigation
+- **Error Events** - Failed requests, validation errors
 
-## API Endpoints
+### Analytics Dashboard
+- **User Overview** - Registration, login patterns
+- **Course Analytics** - Popular content, completion rates
+- **Quiz Performance** - Success rates, average scores
+- **Learning Insights** - Time spent, progress patterns
+- **CSV Export** - Download data for external analysis
+
+## 🔧 API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - User registration
@@ -117,129 +155,45 @@ learning-website/
 - `GET /api/auth/profile` - Get user profile
 
 ### Courses
-- `GET /api/courses` - Get all courses
+- `GET /api/courses` - List all courses
 - `GET /api/courses/:id` - Get course details
 - `GET /api/courses/:id/content/:contentId` - Get content
-- `POST /api/courses/:id/content/:contentId/quiz-submit` - Submit quiz
+- `POST /api/courses/:id/content/:contentId/progress` - Update progress
 
 ### Analytics
-- `GET /api/analytics/user` - User analytics
-- `GET /api/analytics/events` - Clickstream events
-- `GET /api/analytics/export` - Export analytics data
+- `GET /api/analytics/user/:userId` - User analytics
+- `GET /api/analytics/course/:courseId` - Course analytics
+- `GET /api/analytics/export` - Export CSV data
 
-## Database Schema
+## 📝 Database Schema
 
-### Core Tables
-- **users**: User accounts and profiles
-- **courses**: Course information
-- **course_content**: Learning content (text, video, quiz)
-- **quiz_questions**: Quiz questions and answers
-- **user_progress**: Learning progress tracking
-- **clickstream_events**: Analytics event tracking
-- **quiz_attempts**: Quiz performance data
+### Tables
+- **users** - User accounts and profiles
+- **courses** - Course information
+- **course_content** - Text, video, quiz content
+- **quiz_questions** - Quiz questions and answers
+- **user_progress** - Learning progress tracking
+- **clickstream_events** - Analytics event logging
+- **quiz_attempts** - Quiz submission history
 
-## Analytics Tracking
-
-The platform tracks comprehensive user interactions:
-
-### Event Types
-- **Page Views**: Every page navigation
-- **Content Views**: Course and content interactions
-- **Video Interactions**: Play, pause, seek actions
-- **Quiz Interactions**: Attempts, completions, scores
-- **Button Clicks**: UI interaction tracking
-- **Form Submissions**: Registration, login, etc.
-
-### Data Collected
-- User ID and session information
-- Event type and name
-- Component and page context
-- Timestamp and IP address
-- Additional event data (JSON)
-
-## Deployment
-
-### Option 1: Vercel + Render (Recommended)
-
-**Frontend (Vercel)**
-1. Connect your GitHub repository to Vercel
-2. Set build command: `cd client && npm install && npm run build`
-3. Set output directory: `client/build`
-4. Add environment variables
-
-**Backend (Render)**
-1. Create a new Web Service on Render
-2. Connect your GitHub repository
-3. Set build command: `cd server && npm install`
-4. Set start command: `cd server && npm start`
-5. Add environment variables
-
-### Option 2: Railway
-
-Deploy both frontend and backend to Railway:
-1. Connect your GitHub repository
-2. Set up two services (frontend/backend)
-3. Configure environment variables
-4. Deploy automatically
-
-### Environment Variables for Production
-
-```env
-NODE_ENV=production
-PORT=5000
-JWT_SECRET=your-production-secret-key
-CLIENT_URL=https://your-frontend-domain.vercel.app
-```
-
-## Sample Data
-
-The application includes sample data for testing:
-
-### Sample User
-- **Username**: instructor
-- **Password**: instructor123
-- **Role**: instructor
-
-### Sample Course
-- **Title**: Introduction to Web Development
-- **Content**: Text, video, and quiz modules
-- **Category**: Programming
-
-## Analytics Dashboard
-
-The analytics dashboard provides:
-
-### User Analytics
-- Learning progress overview
-- Time spent tracking
-- Quiz performance metrics
-- Activity summaries
-
-### Clickstream Data
-- Detailed event logs
-- User interaction patterns
-- Export capabilities
-- Filtering and search
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
-## License
+## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License.
 
-## Support
+## 👨‍💻 Author
 
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the code comments
+**Ashwani Dubey**
+- GitHub: [@ashwaniiitbb](https://github.com/ashwaniiitbb)
+- Email: quant.beyondirr@gmail.com
 
 ---
 
-**Built with ❤️ for educational analytics and learning tracking** # et617
+**Built with ❤️ for ET617 Learning Analytics Assignment**
