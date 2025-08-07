@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAnalytics } from '../contexts/AnalyticsContext';
 import { 
@@ -13,12 +12,18 @@ import {
   GraduationCap
 } from 'lucide-react';
 
-const Home = () => {
+const Home = ({ onNavigate }) => {
   const { isAuthenticated } = useAuth();
   const { trackButtonClick } = useAnalytics();
 
   const handleCTAClick = (ctaType) => {
     trackButtonClick(`CTA - ${ctaType}`, 'Home', { section: 'hero' });
+  };
+
+  const handleNavigation = (page) => {
+    if (onNavigate) {
+      onNavigate(page);
+    }
   };
 
   const features = [
@@ -54,15 +59,15 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-primary-100 py-20">
+      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <GraduationCap className="h-16 w-16 text-primary-600" />
+              <GraduationCap className="h-16 w-16 text-blue-600" />
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Learn Smarter with
-              <span className="text-gradient block">Analytics</span>
+              <span className="text-blue-600 block">Analytics</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Experience interactive learning with comprehensive analytics tracking. 
@@ -70,32 +75,38 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {isAuthenticated ? (
-                <Link
-                  to="/courses"
+                <button
+                  onClick={() => {
+                    handleCTAClick('Get Started');
+                    handleNavigation('dashboard');
+                  }}
                   className="btn btn-primary text-lg px-8 py-3 flex items-center justify-center"
-                  onClick={() => handleCTAClick('Get Started')}
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Learning
                   <ArrowRight className="h-5 w-5 ml-2" />
-                </Link>
+                </button>
               ) : (
                 <>
-                  <Link
-                    to="/register"
+                  <button
+                    onClick={() => {
+                      handleCTAClick('Sign Up');
+                      handleNavigation('register');
+                    }}
                     className="btn btn-primary text-lg px-8 py-3 flex items-center justify-center"
-                    onClick={() => handleCTAClick('Sign Up')}
                   >
                     Get Started Free
                     <ArrowRight className="h-5 w-5 ml-2" />
-                  </Link>
-                  <Link
-                    to="/login"
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleCTAClick('Login');
+                      handleNavigation('login');
+                    }}
                     className="btn btn-outline text-lg px-8 py-3"
-                    onClick={() => handleCTAClick('Login')}
                   >
                     Sign In
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
@@ -120,7 +131,7 @@ const Home = () => {
             {features.map((feature, index) => (
               <div key={index} className="card card-hover text-center">
                 <div className="flex justify-center mb-4">
-                  <feature.icon className="h-12 w-12 text-primary-600" />
+                  <feature.icon className="h-12 w-12 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {feature.title}
@@ -140,7 +151,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
                   {stat.number}
                 </div>
                 <div className="text-gray-600">
@@ -153,32 +164,36 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary-600">
+      <section className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to Start Your Learning Journey?
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of learners who are already tracking their progress 
             and achieving their educational goals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {isAuthenticated ? (
-              <Link
-                to="/dashboard"
-                className="btn bg-white text-primary-600 hover:bg-gray-100 text-lg px-8 py-3"
-                onClick={() => handleCTAClick('Dashboard')}
+              <button
+                onClick={() => {
+                  handleCTAClick('Dashboard');
+                  handleNavigation('dashboard');
+                }}
+                className="btn bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-3"
               >
                 Go to Dashboard
-              </Link>
+              </button>
             ) : (
-              <Link
-                to="/register"
-                className="btn bg-white text-primary-600 hover:bg-gray-100 text-lg px-8 py-3"
-                onClick={() => handleCTAClick('Final CTA')}
+              <button
+                onClick={() => {
+                  handleCTAClick('Final CTA');
+                  handleNavigation('register');
+                }}
+                className="btn bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-3"
               >
                 Get Started Today
-              </Link>
+              </button>
             )}
           </div>
         </div>
@@ -198,8 +213,8 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-600">1</span>
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-blue-600">1</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Sign Up</h3>
               <p className="text-gray-600">
@@ -208,8 +223,8 @@ const Home = () => {
             </div>
             
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-600">2</span>
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-blue-600">2</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Choose Courses</h3>
               <p className="text-gray-600">
@@ -218,8 +233,8 @@ const Home = () => {
             </div>
             
             <div className="text-center">
-              <div className="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-600">3</span>
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-blue-600">3</span>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Track Progress</h3>
               <p className="text-gray-600">
