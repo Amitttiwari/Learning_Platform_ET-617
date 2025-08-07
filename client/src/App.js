@@ -12,7 +12,7 @@ console.log('Hardcoded API URL:', API_URL);
 const LoginForm = () => {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
 
@@ -30,10 +30,10 @@ const LoginForm = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            type="text"
+            placeholder="Username"
+            value={formData.username}
+            onChange={(e) => setFormData({...formData, username: e.target.value})}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -65,7 +65,9 @@ const RegisterForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    firstName: '',
+    lastName: ''
   });
 
   const handleSubmit = async (e) => {
@@ -102,8 +104,28 @@ const RegisterForm = () => {
         </div>
         <div>
           <input
+            type="text"
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            required
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            required
+          />
+        </div>
+        <div>
+          <input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min 6 characters)"
             value={formData.password}
             onChange={(e) => setFormData({...formData, password: e.target.value})}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
