@@ -197,3 +197,4 @@ This project is licensed under the MIT License.
 ---
 
 **Built with ❤️ for ET617 Learning Analytics Assignment**
+# Updated for deployment
