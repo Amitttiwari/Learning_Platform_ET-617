@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
 const analyticsRoutes = require('./routes/analytics');
 const { initDatabase } = require('./database/init');
+const db = require('./database/db'); // Added for the new test endpoint
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -78,6 +79,17 @@ app.use('/api/analytics', analyticsRoutes);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Test endpoint to check database users
+app.get('/api/test/users', (req, res) => {
+  db.all('SELECT id, username, email, role FROM users', (err, rows) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ users: rows });
+  });
 });
 
 // API-only server - frontend will be served separately

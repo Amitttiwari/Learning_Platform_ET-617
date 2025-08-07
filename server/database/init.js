@@ -173,186 +173,201 @@ async function insertSampleData() {
       
       const instructorId = this.lastID || 1;
       
-      // Create sample course
+      // Create sample learner user
+      const learnerPassword = bcrypt.hashSync('learner123', 10);
       db.run(`
-        INSERT OR IGNORE INTO courses (id, title, description, instructor_id, category, difficulty_level, is_published)
-        VALUES (1, 'Introduction to Web Development', 'Learn the basics of HTML, CSS, and JavaScript', ?, 'Programming', 'beginner', 1)
-      `, [instructorId], function(err) {
+        INSERT OR IGNORE INTO users (username, email, password_hash, first_name, last_name, role)
+        VALUES ('ashwani', 'ashwani@example.com', ?, 'Ashwani', 'User', 'learner')
+      `, [learnerPassword], function(err) {
         if (err) {
-          console.error('Error inserting course:', err);
+          console.error('Error inserting learner:', err);
           reject(err);
           return;
         }
         
-        // Create sample content
-        const sampleContent = [
-          {
-            course_id: 1,
-            title: 'Welcome to the Course',
-            content_type: 'text',
-            content_data: JSON.stringify({
-              text: 'Welcome to Introduction to Web Development! In this course, you will learn the fundamentals of creating websites using HTML, CSS, and JavaScript. This course is designed for complete beginners who want to start their journey in web development.',
-              sections: [
-                {
-                  title: 'What you will learn',
-                  content: '• HTML structure and elements\n• CSS styling and layout\n• JavaScript basics and interactivity\n• Responsive design principles\n• Best practices for web development'
-                },
-                {
-                  title: 'Course Structure',
-                  content: 'The course is divided into 5 modules, each focusing on different aspects of web development. You can progress at your own pace and take quizzes to test your knowledge.'
-                }
-              ]
-            }),
-            order_index: 1
-          },
-          {
-            course_id: 1,
-            title: 'HTML Basics',
-            content_type: 'video',
-            video_url: 'https://www.youtube.com/embed/UB1O30fR-EE',
-            content_data: JSON.stringify({
-              description: 'Learn the fundamentals of HTML, including tags, elements, and document structure.',
-              duration: '15 minutes'
-            }),
-            order_index: 2
-          },
-          {
-            course_id: 1,
-            title: 'CSS Fundamentals',
-            content_type: 'video',
-            video_url: 'https://www.youtube.com/embed/1PnVor36_40',
-            content_data: JSON.stringify({
-              description: 'Learn CSS styling, selectors, and layout techniques.',
-              duration: '20 minutes'
-            }),
-            order_index: 3
-          },
-          {
-            course_id: 1,
-            title: 'JavaScript Basics',
-            content_type: 'video',
-            video_url: 'https://www.youtube.com/embed/W6NZfCO5SIk',
-            content_data: JSON.stringify({
-              description: 'Introduction to JavaScript programming fundamentals.',
-              duration: '25 minutes'
-            }),
-            order_index: 4
-          },
-          {
-            course_id: 1,
-            title: 'HTML Quiz',
-            content_type: 'quiz',
-            content_data: JSON.stringify({
-              description: 'Test your knowledge of HTML basics',
-              time_limit: 300
-            }),
-            order_index: 5
-          },
-          {
-            course_id: 1,
-            title: 'CSS Quiz',
-            content_type: 'quiz',
-            content_data: JSON.stringify({
-              description: 'Test your knowledge of CSS fundamentals',
-              time_limit: 300
-            }),
-            order_index: 6
-          }
-        ];
+        const learnerId = this.lastID || 2;
         
-        sampleContent.forEach((content, index) => {
-          db.run(`
-            INSERT OR IGNORE INTO course_content (course_id, title, content_type, content_data, video_url, order_index)
-            VALUES (?, ?, ?, ?, ?, ?)
-          `, [content.course_id, content.title, content.content_type, content.content_data, content.video_url, content.order_index], function(err) {
-            if (err) {
-              console.error('Error inserting content:', err);
-              reject(err);
-              return;
-            }
-            
-            // If this is the quiz content, add sample questions
-            if (content.content_type === 'quiz') {
-              const contentId = this.lastID || 3;
-              let sampleQuestions = [];
-              
-              // HTML Quiz Questions
-              if (content.title === 'HTML Quiz') {
-                sampleQuestions = [
+        // Create sample course
+        db.run(`
+          INSERT OR IGNORE INTO courses (id, title, description, instructor_id, category, difficulty_level, is_published)
+          VALUES (1, 'Introduction to Web Development', 'Learn the basics of HTML, CSS, and JavaScript', ?, 'Programming', 'beginner', 1)
+        `, [instructorId], function(err) {
+          if (err) {
+            console.error('Error inserting course:', err);
+            reject(err);
+            return;
+          }
+        
+          // Create sample content
+          const sampleContent = [
+            {
+              course_id: 1,
+              title: 'Welcome to the Course',
+              content_type: 'text',
+              content_data: JSON.stringify({
+                text: 'Welcome to Introduction to Web Development! In this course, you will learn the fundamentals of creating websites using HTML, CSS, and JavaScript. This course is designed for complete beginners who want to start their journey in web development.',
+                sections: [
                   {
-                    content_id: contentId,
-                    question_text: 'What does HTML stand for?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['Hyper Text Markup Language', 'High Tech Modern Language', 'Home Tool Markup Language', 'Hyperlink and Text Markup Language']),
-                    correct_answer: 'Hyper Text Markup Language',
-                    points: 1,
-                    order_index: 1
+                    title: 'What you will learn',
+                    content: '• HTML structure and elements\n• CSS styling and layout\n• JavaScript basics and interactivity\n• Responsive design principles\n• Best practices for web development'
                   },
                   {
-                    content_id: contentId,
-                    question_text: 'Which HTML tag is used to define a paragraph?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['<p>', '<paragraph>', '<text>', '<div>']),
-                    correct_answer: '<p>',
-                    points: 1,
-                    order_index: 2
-                  },
-                  {
-                    content_id: contentId,
-                    question_text: 'What is the correct HTML element for inserting a line break?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['<break>', '<lb>', '<br>', '<line>']),
-                    correct_answer: '<br>',
-                    points: 1,
-                    order_index: 3
+                    title: 'Course Structure',
+                    content: 'The course is divided into 5 modules, each focusing on different aspects of web development. You can progress at your own pace and take quizzes to test your knowledge.'
                   }
-                ];
+                ]
+              }),
+              order_index: 1
+            },
+            {
+              course_id: 1,
+              title: 'HTML Basics',
+              content_type: 'video',
+              video_url: 'https://www.youtube.com/embed/UB1O30fR-EE',
+              content_data: JSON.stringify({
+                description: 'Learn the fundamentals of HTML, including tags, elements, and document structure.',
+                duration: '15 minutes'
+              }),
+              order_index: 2
+            },
+            {
+              course_id: 1,
+              title: 'CSS Fundamentals',
+              content_type: 'video',
+              video_url: 'https://www.youtube.com/embed/1PnVor36_40',
+              content_data: JSON.stringify({
+                description: 'Learn CSS styling, selectors, and layout techniques.',
+                duration: '20 minutes'
+              }),
+              order_index: 3
+            },
+            {
+              course_id: 1,
+              title: 'JavaScript Basics',
+              content_type: 'video',
+              video_url: 'https://www.youtube.com/embed/W6NZfCO5SIk',
+              content_data: JSON.stringify({
+                description: 'Introduction to JavaScript programming fundamentals.',
+                duration: '25 minutes'
+              }),
+              order_index: 4
+            },
+            {
+              course_id: 1,
+              title: 'HTML Quiz',
+              content_type: 'quiz',
+              content_data: JSON.stringify({
+                description: 'Test your knowledge of HTML basics',
+                time_limit: 300
+              }),
+              order_index: 5
+            },
+            {
+              course_id: 1,
+              title: 'CSS Quiz',
+              content_type: 'quiz',
+              content_data: JSON.stringify({
+                description: 'Test your knowledge of CSS fundamentals',
+                time_limit: 300
+              }),
+              order_index: 6
+            }
+          ];
+          
+          sampleContent.forEach((content, index) => {
+            db.run(`
+              INSERT OR IGNORE INTO course_content (course_id, title, content_type, content_data, video_url, order_index)
+              VALUES (?, ?, ?, ?, ?, ?)
+            `, [content.course_id, content.title, content.content_type, content.content_data, content.video_url, content.order_index], function(err) {
+              if (err) {
+                console.error('Error inserting content:', err);
+                reject(err);
+                return;
               }
               
-              // CSS Quiz Questions
-              if (content.title === 'CSS Quiz') {
-                sampleQuestions = [
-                  {
-                    content_id: contentId,
-                    question_text: 'What does CSS stand for?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style Sheets', 'Colorful Style Sheets']),
-                    correct_answer: 'Cascading Style Sheets',
-                    points: 1,
-                    order_index: 1
-                  },
-                  {
-                    content_id: contentId,
-                    question_text: 'Which CSS property controls the text size?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['font-size', 'text-size', 'font-style', 'text-style']),
-                    correct_answer: 'font-size',
-                    points: 1,
-                    order_index: 2
-                  },
-                  {
-                    content_id: contentId,
-                    question_text: 'How do you add a background color for all <h1> elements?',
-                    question_type: 'multiple_choice',
-                    options: JSON.stringify(['h1 {background-color:#B2D6FF}', 'h1.all {background-color:#B2D6FF}', 'all.h1 {background-color:#B2D6FF}', 'h1 {bgcolor:#B2D6FF}']),
-                    correct_answer: 'h1 {background-color:#B2D6FF}',
-                    points: 1,
-                    order_index: 3
-                  }
-                ];
+              // If this is the quiz content, add sample questions
+              if (content.content_type === 'quiz') {
+                const contentId = this.lastID || 3;
+                let sampleQuestions = [];
+                
+                // HTML Quiz Questions
+                if (content.title === 'HTML Quiz') {
+                  sampleQuestions = [
+                    {
+                      content_id: contentId,
+                      question_text: 'What does HTML stand for?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['Hyper Text Markup Language', 'High Tech Modern Language', 'Home Tool Markup Language', 'Hyperlink and Text Markup Language']),
+                      correct_answer: 'Hyper Text Markup Language',
+                      points: 1,
+                      order_index: 1
+                    },
+                    {
+                      content_id: contentId,
+                      question_text: 'Which HTML tag is used to define a paragraph?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['<p>', '<paragraph>', '<text>', '<div>']),
+                      correct_answer: '<p>',
+                      points: 1,
+                      order_index: 2
+                    },
+                    {
+                      content_id: contentId,
+                      question_text: 'What is the correct HTML element for inserting a line break?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['<break>', '<lb>', '<br>', '<line>']),
+                      correct_answer: '<br>',
+                      points: 1,
+                      order_index: 3
+                    }
+                  ];
+                }
+                
+                // CSS Quiz Questions
+                if (content.title === 'CSS Quiz') {
+                  sampleQuestions = [
+                    {
+                      content_id: contentId,
+                      question_text: 'What does CSS stand for?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style Sheets', 'Colorful Style Sheets']),
+                      correct_answer: 'Cascading Style Sheets',
+                      points: 1,
+                      order_index: 1
+                    },
+                    {
+                      content_id: contentId,
+                      question_text: 'Which CSS property controls the text size?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['font-size', 'text-size', 'font-style', 'text-style']),
+                      correct_answer: 'font-size',
+                      points: 1,
+                      order_index: 2
+                    },
+                    {
+                      content_id: contentId,
+                      question_text: 'How do you add a background color for all <h1> elements?',
+                      question_type: 'multiple_choice',
+                      options: JSON.stringify(['h1 {background-color:#B2D6FF}', 'h1.all {background-color:#B2D6FF}', 'all.h1 {background-color:#B2D6FF}', 'h1 {bgcolor:#B2D6FF}']),
+                      correct_answer: 'h1 {background-color:#B2D6FF}',
+                      points: 1,
+                      order_index: 3
+                    }
+                  ];
+                }
+                
+                sampleQuestions.forEach(question => {
+                  db.run(`
+                    INSERT OR IGNORE INTO quiz_questions (content_id, question_text, question_type, options, correct_answer, points, order_index)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                  `, [question.content_id, question.question_text, question.question_type, question.options, question.correct_answer, question.points, question.order_index]);
+                });
               }
               
-              sampleQuestions.forEach(question => {
-                db.run(`
-                  INSERT OR IGNORE INTO quiz_questions (content_id, question_text, question_type, options, correct_answer, points, order_index)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [question.content_id, question.question_text, question.question_type, question.options, question.correct_answer, question.points, question.order_index]);
-              });
-            }
-            
-            if (index === sampleContent.length - 1) {
-              resolve();
-            }
+              if (index === sampleContent.length - 1) {
+                resolve();
+              }
+            });
           });
         });
       });
