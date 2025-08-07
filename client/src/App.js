@@ -98,27 +98,136 @@ const Navigation = ({ currentPage, setCurrentPage, isAuthenticated, logout }) =>
   );
 };
 
+// Simple Test Pages
+const TestHome = () => (
+  <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">🏠 Home Page</h1>
+      <p className="text-gray-600 text-lg">Welcome to the Learning Platform</p>
+      <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Features</h2>
+        <ul className="text-left space-y-2">
+          <li>✅ User Authentication</li>
+          <li>✅ Course Management</li>
+          <li>✅ Analytics Tracking</li>
+          <li>✅ Progress Monitoring</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+);
+
+const TestDashboard = () => (
+  <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">📊 Dashboard</h1>
+      <p className="text-gray-600 text-lg">Your learning progress</p>
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Courses</h3>
+          <p className="text-3xl font-bold text-blue-600">3</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Progress</h3>
+          <p className="text-3xl font-bold text-green-600">75%</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Time</h3>
+          <p className="text-3xl font-bold text-purple-600">2h</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TestProfile = () => (
+  <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">👤 Profile</h1>
+      <p className="text-gray-600 text-lg">Your account information</p>
+      <div className="mt-8 bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <p className="text-lg font-semibold text-gray-900">testuser</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <p className="text-lg font-semibold text-gray-900">test@example.com</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Member Since</label>
+            <p className="text-lg font-semibold text-gray-900">August 2025</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const TestAnalytics = () => (
+  <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">📈 Analytics</h1>
+      <p className="text-gray-600 text-lg">Your learning analytics</p>
+      <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Learning Stats</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Time Spent</h3>
+            <p className="text-2xl font-bold text-blue-600">12 hours</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Courses Completed</h3>
+            <p className="text-2xl font-bold text-green-600">2 of 3</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 // Main App Component
 function AppContent() {
   const { user, isAuthenticated, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
 
   const renderPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return <Home />;
-      case 'login':
-        return <Login />;
-      case 'register':
-        return <Register />;
-      case 'dashboard':
-        return isAuthenticated ? <Dashboard /> : <Login />;
-      case 'profile':
-        return isAuthenticated ? <Profile /> : <Login />;
-      case 'analytics':
-        return isAuthenticated ? <Analytics /> : <Login />;
-      default:
-        return <Home />;
+    console.log('Rendering page:', currentPage);
+    
+    try {
+      switch (currentPage) {
+        case 'home':
+          return <TestHome />;
+        case 'login':
+          return <Login />;
+        case 'register':
+          return <Register />;
+        case 'dashboard':
+          return isAuthenticated ? <TestDashboard /> : <Login />;
+        case 'profile':
+          return isAuthenticated ? <TestProfile /> : <Login />;
+        case 'analytics':
+          return isAuthenticated ? <TestAnalytics /> : <Login />;
+        default:
+          return <TestHome />;
+      }
+    } catch (error) {
+      console.error('Error rendering page:', error);
+      return (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-red-600 mb-4">Error Loading Page</h1>
+            <p className="text-gray-600">There was an error loading this page.</p>
+            <button 
+              onClick={() => setCurrentPage('home')}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Go Home
+            </button>
+          </div>
+        </div>
+      );
     }
   };
 
