@@ -152,6 +152,12 @@ const CourseDetail = ({ onNavigate }) => {
       trackProgressUpdate(course.id, currentContent.id, newProgress, timeSpent);
       
       console.log(`Progress updated to ${newProgress}% for content: ${currentContent.title}`);
+      
+      // Show success message
+      if (newProgress === 100) {
+        // You can add a toast notification here
+        console.log('✅ Content marked as complete!');
+      }
     } catch (error) {
       console.error('Error updating progress:', error);
     }
@@ -366,18 +372,42 @@ const CourseDetail = ({ onNavigate }) => {
                 </div>
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => handleProgressUpdate(Math.min(100, progress + 25))}
-                    className="btn btn-primary"
+                    onClick={() => handleProgressUpdate(100)}
+                    className={`btn flex items-center ${
+                      currentContent.completed 
+                        ? 'btn-success bg-green-600 hover:bg-green-700' 
+                        : 'btn-primary'
+                    }`}
                   >
-                    Mark as Complete
+                    {currentContent.completed ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Marked as Complete
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Complete
+                      </>
+                    )}
                   </button>
                   <button
-                    onClick={() => handleProgressUpdate(Math.max(0, progress - 25))}
+                    onClick={() => handleProgressUpdate(0)}
                     className="btn btn-outline"
                   >
                     Reset Progress
                   </button>
                 </div>
+                {currentContent.completed && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                      <span className="text-green-800 font-medium">
+                        This content has been marked as complete!
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

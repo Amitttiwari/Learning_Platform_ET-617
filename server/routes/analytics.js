@@ -9,6 +9,175 @@ const { db } = require('../database/init');
 
 const router = express.Router();
 
+// Track individual analytics event
+router.post('/events', async (req, res) => {
+  try {
+    const {
+      event_type,
+      event_name,
+      component,
+      description,
+      page_url,
+      course_id,
+      content_id,
+      content_title,
+      action,
+      score,
+      progress_percentage,
+      time_spent,
+      button_name,
+      form_name,
+      success,
+      event_data,
+      user_agent,
+      origin
+    } = req.body;
+
+    const event = {
+      event_type: event_type || 'unknown',
+      event_name: event_name || 'Unknown Event',
+      component: component || '',
+      description: description || '',
+      page_url: page_url || '',
+      course_id: course_id || '',
+      content_id: content_id || '',
+      content_title: content_title || '',
+      action: action || '',
+      score: score || null,
+      progress_percentage: progress_percentage || null,
+      time_spent: time_spent || 0,
+      button_name: button_name || '',
+      form_name: form_name || '',
+      success: success || false,
+      event_data: event_data || '',
+      user_agent: user_agent || '',
+      origin: origin || 'web',
+      timestamp: new Date().toISOString(),
+      user_id: req.user?.id || 1 // Default to user 1 if not authenticated
+    };
+
+    const sql = `
+      INSERT INTO clickstream_events (
+        event_type, event_name, component, description, page_url, 
+        course_id, content_id, content_title, action, score, 
+        progress_percentage, time_spent, button_name, form_name, 
+        success, event_data, user_agent, origin, timestamp, user_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const params = [
+      event.event_type, event.event_name, event.component, event.description, event.page_url,
+      event.course_id, event.content_id, event.content_title, event.action, event.score,
+      event.progress_percentage, event.time_spent, event.button_name, event.form_name,
+      event.success, event.event_data, event.user_agent, event.origin, event.timestamp, event.user_id
+    ];
+
+    db.run(sql, params, function(err) {
+      if (err) {
+        console.error('Error inserting clickstream event:', err);
+        return res.status(500).json({ error: 'Failed to track event' });
+      }
+      
+      console.log('📊 Clickstream event tracked:', event.event_type, event.event_name);
+      res.status(200).json({ 
+        success: true, 
+        message: 'Event tracked successfully',
+        event_id: this.lastID 
+      });
+    });
+  } catch (error) {
+    console.error('Error in analytics events route:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user events
+router.get('/user/events', async (req, res) => {
+  try {
+    const userId = req.user?.id || 1; // Default to user 1 if not authenticated
+    
+    const sql = `
+      SELECT * FROM clickstream_events 
+      WHERE user_id = ? 
+      ORDER BY timestamp DESC 
+      LIMIT 100
+    `;
+    
+    db.all(sql, [userId], (err, rows) => {
+      if (err) {
+        console.error('Error fetching user events:', err);
+        return res.status(500).json({ error: 'Failed to fetch events' });
+      }
+      
+      res.json({ 
+        success: true, 
+        events: rows,
+        count: rows.length 
+      });
+    });
+  } catch (error) {
+    console.error('Error in user events route:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user analytics summary
+router.get('/user', async (req, res) => {
+  try {
+    const userId = req.user?.id || 1;
+    const period = req.query.period || '7d';
+    
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+
+    const sql = `
+      SELECT 
+        COUNT(*) as total_events,
+        SUM(CASE WHEN event_type = 'video_interaction' THEN time_spent ELSE 0 END) as total_time_spent,
+        AVG(CASE WHEN event_type = 'quiz_interaction' AND score IS NOT NULL THEN score ELSE NULL END) as average_score,
+        COUNT(DISTINCT CASE WHEN event_type = 'progress_update' AND progress_percentage = 100 THEN content_id END) as courses_completed,
+        COUNT(DISTINCT course_id) as total_courses
+      FROM clickstream_events 
+      WHERE user_id = ? AND timestamp >= ?
+    `;
+    
+    db.get(sql, [userId, startDate.toISOString()], (err, row) => {
+      if (err) {
+        console.error('Error fetching analytics summary:', err);
+        return res.status(500).json({ error: 'Failed to fetch analytics' });
+      }
+      
+      res.json({
+        success: true,
+        summary: {
+          totalEvents: row.total_events || 0,
+          totalTimeSpent: Math.round((row.total_time_spent || 0) / 60), // Convert to hours
+          averageScore: Math.round(row.average_score || 0),
+          coursesCompleted: row.courses_completed || 0,
+          totalCourses: row.total_courses || 0
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error in analytics summary route:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get user's own analytics data
 router.get('/user', authenticateToken, async (req, res) => {
   try {
@@ -234,63 +403,64 @@ router.get('/system', authenticateToken, (req, res) => {
   });
 });
 
-// Export clickstream data as CSV format
-router.get('/export', authenticateToken, (req, res) => {
-  const userId = req.user.userId;
-  const { format = 'json', startDate, endDate } = req.query;
-
-  let query = `
-    SELECT 
-      timestamp,
-      event_type,
-      event_name,
-      component,
-      description,
-      page_url,
-      course_id,
-      content_id,
-      event_data,
-      ip_address,
-      user_agent,
-      origin
-    FROM clickstream_events
-    WHERE user_id = ?
-  `;
-  
-  const params = [userId];
-  
-  if (startDate) {
-    query += ' AND DATE(timestamp) >= ?';
-    params.push(startDate);
-  }
-  
-  if (endDate) {
-    query += ' AND DATE(timestamp) <= ?';
-    params.push(endDate);
-  }
-  
-  query += ' ORDER BY timestamp DESC';
-
-  db.all(query, params, (err, events) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
+// Export analytics as CSV
+router.get('/export', async (req, res) => {
+  try {
+    const userId = req.user?.id || 1;
+    const format = req.query.format || 'csv';
+    
+    if (format !== 'csv') {
+      return res.status(400).json({ error: 'Only CSV format is supported' });
     }
 
-    if (format === 'csv') {
-      // Convert to CSV format
-      const csvHeader = 'Time,Event Type,Event Name,Component,Description,Page URL,Course ID,Content ID,Event Data,IP Address,User Agent,Origin\n';
-      const csvRows = events.map(event => 
-        `"${event.timestamp}","${event.event_type}","${event.event_name}","${event.component || ''}","${event.description || ''}","${event.page_url || ''}","${event.course_id || ''}","${event.content_id || ''}","${event.event_data || ''}","${event.ip_address || ''}","${event.user_agent || ''}","${event.origin}"`
-      ).join('\n');
+    const sql = `
+      SELECT 
+        timestamp as Time,
+        event_type as "Event Type",
+        event_name as "Event Name",
+        component as Component,
+        description as Description,
+        page_url as "Page URL",
+        course_id as "Course ID",
+        content_id as "Content ID",
+        event_data as "Event Data",
+        user_agent as "User Agent",
+        origin as Origin
+      FROM clickstream_events 
+      WHERE user_id = ? 
+      ORDER BY timestamp DESC
+    `;
+    
+    db.all(sql, [userId], (err, rows) => {
+      if (err) {
+        console.error('Error exporting analytics:', err);
+        return res.status(500).json({ error: 'Failed to export analytics' });
+      }
       
+      if (rows.length === 0) {
+        return res.status(404).json({ error: 'No data to export' });
+      }
+
+      // Convert to CSV
+      const headers = Object.keys(rows[0]);
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => 
+          headers.map(header => {
+            const value = row[header];
+            return value ? `"${value.toString().replace(/"/g, '""')}"` : '""';
+          }).join(',')
+        )
+      ].join('\n');
+
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename="clickstream_data.csv"');
-      res.send(csvHeader + csvRows);
-    } else {
-      res.json({ events });
-    }
-  });
+      res.setHeader('Content-Disposition', `attachment; filename="clickstream_analytics_${new Date().toISOString().split('T')[0]}.csv"`);
+      res.send(csvContent);
+    });
+  } catch (error) {
+    console.error('Error in analytics export route:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router; 
