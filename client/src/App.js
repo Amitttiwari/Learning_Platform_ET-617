@@ -1,6 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AnalyticsProvider } from './contexts/AnalyticsContext';
 import { Toaster } from 'react-hot-toast';
+
+// Import pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import Analytics from './pages/Analytics';
+import CourseDetail from './pages/CourseDetail';
+import ContentViewer from './pages/ContentViewer';
+
+// Import components
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Hardcoded API URL - no environment variable needed
 const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
@@ -8,189 +25,71 @@ const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
 // Debug: Log hardcoded API URL
 console.log('Hardcoded API URL:', API_URL);
 
-// Styled Login Form Component
-const LoginForm = () => {
-  const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const result = await login(formData);
-    if (result.success) {
-      console.log('Login successful!');
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-lg shadow-lg p-6 w-80">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">🔐 Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <input
-            type="text"
-            placeholder="Username"
-            value={formData.username}
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        <button 
-          type="submit" 
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold"
-        >
-          Login
-        </button>
-      </form>
-    </div>
-  );
-};
-
-// Styled Register Form Component
-const RegisterForm = () => {
-  const { register } = useAuth();
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: ''
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const result = await register(formData);
-    if (result.success) {
-      console.log('Registration successful!');
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-lg shadow-lg p-6 w-80">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">📝 Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <input
-            type="text"
-            placeholder="Username"
-            value={formData.username}
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="Password (min 6 characters)"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-            required
-          />
-        </div>
-        <button 
-          type="submit" 
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-200 font-semibold"
-        >
-          Register
-        </button>
-      </form>
-    </div>
-  );
+// Protected Route Component
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+  
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 // Main App Component
 function AppContent() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">🚀 Learning Platform</h1>
-          <p className="text-gray-600 text-lg">Interactive learning with analytics tracking</p>
-        </div>
-        
-        {isAuthenticated ? (
-          <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">✅ Welcome back!</h2>
-              <p className="text-gray-600 mb-6">Hello, {user?.username || user?.email}!</p>
-              <button 
-                onClick={logout} 
-                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition duration-200 font-semibold"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Get Started</h2>
-              <p className="text-gray-600">Create an account or sign in to access your courses</p>
-            </div>
-            <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
-              <LoginForm />
-              <RegisterForm />
-            </div>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="pt-16">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
+          <Route path="/analytics" element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          } />
+          <Route path="/courses/:courseId" element={
+            <PrivateRoute>
+              <CourseDetail />
+            </PrivateRoute>
+          } />
+          <Route path="/courses/:courseId/content/:contentId" element={
+            <PrivateRoute>
+              <ContentViewer />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </main>
+      <Footer />
     </div>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-      <Toaster position="top-right" />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AnalyticsProvider>
+          <AppContent />
+          <Toaster position="top-right" />
+        </AnalyticsProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
