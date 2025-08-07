@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Analytics from './pages/Analytics';
+import CourseDetail from './pages/CourseDetail';
 
 // Import components
 import LoadingSpinner from './components/LoadingSpinner';
@@ -115,11 +116,13 @@ function AppContent() {
         case 'register':
           return <Register onNavigate={setCurrentPage} />;
         case 'dashboard':
-          return isAuthenticated ? <Dashboard /> : <Login onNavigate={setCurrentPage} />;
+          return isAuthenticated ? <Dashboard onNavigate={setCurrentPage} /> : <Login onNavigate={setCurrentPage} />;
         case 'profile':
           return isAuthenticated ? <Profile /> : <Login onNavigate={setCurrentPage} />;
         case 'analytics':
           return isAuthenticated ? <Analytics /> : <Login onNavigate={setCurrentPage} />;
+        case 'course-detail':
+          return isAuthenticated ? <CourseDetail onNavigate={setCurrentPage} /> : <Login onNavigate={setCurrentPage} />;
         default:
           return <Home onNavigate={setCurrentPage} />;
       }
