@@ -53,14 +53,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// API-only server - frontend will be served separately
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Learning Platform API Server',
+    status: 'running',
+    timestamp: new Date().toISOString()
   });
-}
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
