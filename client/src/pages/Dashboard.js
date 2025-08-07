@@ -11,7 +11,10 @@ import {
   Play,
   CheckCircle,
   Calendar,
-  Target
+  Target,
+  Eye,
+  Video,
+  HelpCircle
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -22,42 +25,24 @@ const Dashboard = ({ onNavigate }) => {
   const [courses, setCourses] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [userEvents, setUserEvents] = useState([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [coursesRes, analyticsRes] = await Promise.all([
+        const [coursesRes, analyticsRes, eventsRes] = await Promise.all([
           axios.get('/api/courses'),
-          axios.get('/api/analytics/user')
+          axios.get('/api/analytics/user'),
+          axios.get('/api/analytics/user/events')
         ]);
 
         setCourses(coursesRes.data.courses || []);
         setAnalytics(analyticsRes.data);
+        setUserEvents(eventsRes.data.events || []);
         
-        // Mock recent activity for now
-        setRecentActivity([
-          {
-            id: 1,
-            type: 'course_completed',
-            title: 'Introduction to Web Development',
-            time: '2 hours ago',
-            icon: CheckCircle
-          },
-          {
-            id: 2,
-            type: 'quiz_taken',
-            title: 'HTML Basics Quiz',
-            time: '1 day ago',
-            icon: Award
-          },
-          {
-            id: 3,
-            type: 'course_started',
-            title: 'CSS Fundamentals',
-            time: '3 days ago',
-            icon: Play
-          }
-        ]);
+        // Generate recent activity from user events
+        const activities = generateRecentActivity(eventsRes.data.events || []);
+        setRecentActivity(activities);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         // Set mock data if API fails
@@ -91,6 +76,56 @@ const Dashboard = ({ onNavigate }) => {
             totalCourses: 3
           }
         });
+        
+        // Mock recent activity based on clickstream data
+        const mockActivities = [
+          {
+            id: 1,
+            type: 'course_viewed',
+            title: 'Introduction to Web Development',
+            time: '2 hours ago',
+            icon: Eye,
+            color: 'text-blue-600',
+            bgColor: 'bg-blue-100'
+          },
+          {
+            id: 2,
+            type: 'video_watched',
+            title: 'HTML Basics Video',
+            time: '1 hour ago',
+            icon: Video,
+            color: 'text-green-600',
+            bgColor: 'bg-green-100'
+          },
+          {
+            id: 3,
+            type: 'quiz_completed',
+            title: 'HTML Quiz - Score: 85%',
+            time: '30 minutes ago',
+            icon: HelpCircle,
+            color: 'text-purple-600',
+            bgColor: 'bg-purple-100'
+          },
+          {
+            id: 4,
+            type: 'progress_updated',
+            title: 'CSS Fundamentals - 75% Complete',
+            time: '15 minutes ago',
+            icon: CheckCircle,
+            color: 'text-orange-600',
+            bgColor: 'bg-orange-100'
+          },
+          {
+            id: 5,
+            type: 'page_viewed',
+            title: 'Analytics Dashboard',
+            time: '5 minutes ago',
+            icon: BarChart3,
+            color: 'text-indigo-600',
+            bgColor: 'bg-indigo-100'
+          }
+        ];
+        setRecentActivity(mockActivities);
       } finally {
         setLoading(false);
       }
@@ -98,6 +133,120 @@ const Dashboard = ({ onNavigate }) => {
 
     fetchDashboardData();
   }, []);
+
+  const generateRecentActivity = (events) => {
+    const activities = [];
+    const now = new Date();
+    
+    events.slice(0, 10).forEach((event, index) => {
+      const eventTime = new Date(event.timestamp);
+      const timeDiff = Math.floor((now - eventTime) / (1000 * 60)); // minutes ago
+      
+      let timeAgo;
+      if (timeDiff < 1) timeAgo = 'Just now';
+      else if (timeDiff < 60) timeAgo = `${timeDiff} minutes ago`;
+      else if (timeDiff < 1440) timeAgo = `${Math.floor(timeDiff / 60)} hours ago`;
+      else timeAgo = `${Math.floor(timeDiff / 1440)} days ago`;
+
+      let activity = {
+        id: index + 1,
+        type: event.event_type,
+        title: getActivityTitle(event),
+        time: timeAgo,
+        icon: getActivityIcon(event.event_type),
+        color: getActivityColor(event.event_type),
+        bgColor: getActivityBgColor(event.event_type)
+      };
+      
+      activities.push(activity);
+    });
+    
+    return activities;
+  };
+
+  const getActivityTitle = (event) => {
+    switch (event.event_type) {
+      case 'page_view':
+        return `${event.context || 'Page'} Viewed`;
+      case 'content_view':
+        return `${event.content_title || 'Content'} Viewed`;
+      case 'video_interaction':
+        return `${event.content_title || 'Video'} - ${event.action || 'Interaction'}`;
+      case 'quiz_completed':
+        return `Quiz Completed - Score: ${event.score || 'N/A'}%`;
+      case 'progress_update':
+        return `${event.content_title || 'Content'} - ${event.progress_percentage || 0}% Complete`;
+      case 'button_click':
+        return `${event.button_name || 'Button'} Clicked`;
+      case 'form_submission':
+        return `${event.form_name || 'Form'} Submitted`;
+      default:
+        return event.event_type || 'Activity';
+    }
+  };
+
+  const getActivityIcon = (eventType) => {
+    switch (eventType) {
+      case 'page_view':
+        return Eye;
+      case 'content_view':
+        return BookOpen;
+      case 'video_interaction':
+        return Video;
+      case 'quiz_completed':
+        return HelpCircle;
+      case 'progress_update':
+        return CheckCircle;
+      case 'button_click':
+        return TrendingUp;
+      case 'form_submission':
+        return Award;
+      default:
+        return Eye;
+    }
+  };
+
+  const getActivityColor = (eventType) => {
+    switch (eventType) {
+      case 'page_view':
+        return 'text-blue-600';
+      case 'content_view':
+        return 'text-green-600';
+      case 'video_interaction':
+        return 'text-purple-600';
+      case 'quiz_completed':
+        return 'text-orange-600';
+      case 'progress_update':
+        return 'text-indigo-600';
+      case 'button_click':
+        return 'text-red-600';
+      case 'form_submission':
+        return 'text-teal-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getActivityBgColor = (eventType) => {
+    switch (eventType) {
+      case 'page_view':
+        return 'bg-blue-100';
+      case 'content_view':
+        return 'bg-green-100';
+      case 'video_interaction':
+        return 'bg-purple-100';
+      case 'quiz_completed':
+        return 'bg-orange-100';
+      case 'progress_update':
+        return 'bg-indigo-100';
+      case 'button_click':
+        return 'bg-red-100';
+      case 'form_submission':
+        return 'bg-teal-100';
+      default:
+        return 'bg-gray-100';
+    }
+  };
 
   const handleQuickAction = (action) => {
     trackButtonClick(`Dashboard - ${action}`, 'Dashboard', { action });
@@ -250,8 +399,8 @@ const Dashboard = ({ onNavigate }) => {
         <div className="space-y-4">
           {recentActivity.map((activity) => (
             <div key={activity.id} className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <activity.icon className="h-5 w-5 text-blue-600" />
+              <div className={`p-2 rounded-full ${activity.bgColor}`}>
+                <activity.icon className={`h-5 w-5 ${activity.color}`} />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-gray-900">{activity.title}</p>

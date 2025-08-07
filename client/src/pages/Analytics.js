@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { useAnalytics } from '../contexts/AnalyticsContext';
 import axios from 'axios';
-import { 
-  BarChart3, 
-  Download, 
+import {
+  BarChart3,
+  Download,
   Calendar,
   TrendingUp,
   Clock,
   Award,
-  Activity
+  Activity,
+  Eye,
+  Video,
+  HelpCircle,
+  CheckCircle,
+  MousePointer
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -17,6 +23,8 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
+  const [clickstreamData, setClickstreamData] = useState([]);
+  const [eventTypes, setEventTypes] = useState([]);
 
   useEffect(() => {
     fetchAnalytics();
@@ -24,43 +32,199 @@ const Analytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await axios.get(`/api/analytics/user?period=${selectedPeriod}`);
-      setAnalyticsData(response.data);
+      setLoading(true);
+      const [analyticsRes, eventsRes] = await Promise.all([
+        axios.get(`/api/analytics/user?period=${selectedPeriod}`),
+        axios.get('/api/analytics/user/events')
+      ]);
+
+      setAnalyticsData(analyticsRes.data);
+      setClickstreamData(eventsRes.data.events || []);
+      
+      // Generate event type statistics
+      const eventTypeStats = generateEventTypeStats(eventsRes.data.events || []);
+      setEventTypes(eventTypeStats);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      // Set mock data
+      setAnalyticsData({
+        summary: {
+          totalEvents: 45,
+          totalTimeSpent: 12,
+          averageScore: 85,
+          coursesCompleted: 2,
+          totalCourses: 3
+        },
+        events: {
+          pageViews: 15,
+          contentViews: 12,
+          videoInteractions: 8,
+          quizAttempts: 5,
+          buttonClicks: 5
+        }
+      });
+      
+      const mockClickstream = [
+        {
+          id: 1,
+          event_type: 'page_view',
+          context: 'Dashboard',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+          user_id: 1,
+          session_id: 'session_1'
+        },
+        {
+          id: 2,
+          event_type: 'content_view',
+          content_title: 'HTML Basics',
+          timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+          user_id: 1,
+          session_id: 'session_1'
+        },
+        {
+          id: 3,
+          event_type: 'video_interaction',
+          content_title: 'CSS Fundamentals',
+          action: 'play',
+          timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+          user_id: 1,
+          session_id: 'session_1'
+        },
+        {
+          id: 4,
+          event_type: 'quiz_completed',
+          content_title: 'HTML Quiz',
+          score: 85,
+          timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+          user_id: 1,
+          session_id: 'session_1'
+        },
+        {
+          id: 5,
+          event_type: 'progress_update',
+          content_title: 'JavaScript Introduction',
+          progress_percentage: 75,
+          timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+          user_id: 1,
+          session_id: 'session_1'
+        }
+      ];
+      
+      setClickstreamData(mockClickstream);
+      setEventTypes(generateEventTypeStats(mockClickstream));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateEventTypeStats = (events) => {
+    const stats = {};
+    events.forEach(event => {
+      if (!stats[event.event_type]) {
+        stats[event.event_type] = 0;
+      }
+      stats[event.event_type]++;
+    });
+    
+    return Object.entries(stats).map(([type, count]) => ({
+      type,
+      count,
+      icon: getEventIcon(type),
+      color: getEventColor(type)
+    }));
+  };
+
+  const getEventIcon = (eventType) => {
+    switch (eventType) {
+      case 'page_view':
+        return Eye;
+      case 'content_view':
+        return Activity;
+      case 'video_interaction':
+        return Video;
+      case 'quiz_completed':
+        return HelpCircle;
+      case 'progress_update':
+        return CheckCircle;
+      case 'button_click':
+        return MousePointer;
+      default:
+        return Activity;
+    }
+  };
+
+  const getEventColor = (eventType) => {
+    switch (eventType) {
+      case 'page_view':
+        return 'text-blue-600';
+      case 'content_view':
+        return 'text-green-600';
+      case 'video_interaction':
+        return 'text-purple-600';
+      case 'quiz_completed':
+        return 'text-orange-600';
+      case 'progress_update':
+        return 'text-indigo-600';
+      case 'button_click':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
   const handleExport = async () => {
     try {
       trackButtonClick('Export Analytics', 'Analytics', { period: selectedPeriod });
-      
+
       const response = await axios.get('/api/analytics/export?format=csv', {
         responseType: 'blob'
       });
-      
+
       // Create a download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `analytics_${selectedPeriod}.csv`);
+      link.setAttribute('download', `clickstream_analytics_${selectedPeriod}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting analytics:', error);
+      // Create mock CSV export
+      const csvContent = generateMockCSV();
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `clickstream_analytics_${selectedPeriod}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
     }
+  };
+
+  const generateMockCSV = () => {
+    const headers = ['Timestamp', 'Event Type', 'Context', 'Content Title', 'Action', 'Score', 'Progress %', 'User ID', 'Session ID'];
+    const rows = clickstreamData.map(event => [
+      new Date(event.timestamp).toLocaleString(),
+      event.event_type,
+      event.context || '',
+      event.content_title || '',
+      event.action || '',
+      event.score || '',
+      event.progress_percentage || '',
+      event.user_id,
+      event.session_id
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
   };
 
   if (loading) {
     return <LoadingSpinner text="Loading analytics..." />;
   }
-
-  const summary = analyticsData?.summary || {};
-  const events = analyticsData?.analytics || [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -69,13 +233,13 @@ const Analytics = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Analytics</h1>
-            <p className="text-gray-600">Track your learning progress and engagement</p>
+            <p className="text-gray-600">Track your learning progress and interactions</p>
           </div>
           <div className="flex items-center space-x-4">
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="input"
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -83,179 +247,120 @@ const Analytics = () => {
             </select>
             <button
               onClick={handleExport}
-              className="btn btn-outline flex items-center"
+              className="btn btn-primary flex items-center"
             >
               <Download className="h-4 w-4 mr-2" />
-              Export
+              Export CSV
             </button>
           </div>
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="card">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-blue-100">
+            <div className="p-3 rounded-full bg-blue-100">
               <Activity className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Events</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.total_events || 0}</p>
+              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.totalEvents || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-green-100">
+            <div className="p-3 rounded-full bg-green-100">
               <Clock className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Time Spent</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {Math.round((summary.totalTimeSpent || 0) / 60)} min
-              </p>
+              <p className="text-sm font-medium text-gray-600">Hours Learned</p>
+              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.totalTimeSpent || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-purple-100">
+            <div className="p-3 rounded-full bg-purple-100">
               <TrendingUp className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Avg Score</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {summary.averageScore || 0}%
-              </p>
+              <p className="text-sm font-medium text-gray-600">Average Score</p>
+              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.averageScore || 0}%</p>
             </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-orange-100">
+            <div className="p-3 rounded-full bg-orange-100">
               <Award className="h-6 w-6 text-orange-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Days</p>
-              <p className="text-2xl font-bold text-gray-900">{summary.active_days || 0}</p>
+              <p className="text-sm font-medium text-gray-600">Courses Completed</p>
+              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.coursesCompleted || 0}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Event Types Chart */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Types</h3>
-          <div className="space-y-3">
-            {events.filter(event => event.event_type).map((event, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-primary-600 mr-3"></div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {event.event_type}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-600">{event.count} events</span>
+      {/* Event Types */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Event Types</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {eventTypes.map((eventType, index) => (
+            <div key={index} className="flex items-center p-4 border border-gray-200 rounded-lg">
+              <div className={`p-2 rounded-full bg-gray-100`}>
+                <eventType.icon className={`h-5 w-5 ${eventType.color}`} />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Activity Timeline */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-          <div className="space-y-3">
-            {events.slice(0, 5).map((event, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <BarChart3 className="h-5 w-5 text-primary-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{event.event_name}</p>
-                  <p className="text-xs text-gray-500">{event.date}</p>
-                </div>
-                <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">
-                  {event.count}
-                </span>
+              <div className="ml-3">
+                <p className="font-medium text-gray-900 capitalize">{eventType.type.replace('_', ' ')}</p>
+                <p className="text-sm text-gray-600">{eventType.count} events</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Detailed Analytics */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Analytics</h3>
+      {/* Clickstream Data */}
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Clickstream Data</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Event Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Event Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Component
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Count
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Context</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {events.map((event, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {event.event_type}
+              {clickstreamData.slice(0, 10).map((event, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(event.timestamp).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getEventColor(event.event_type).replace('text-', 'bg-').replace('-600', '-100')} ${getEventColor(event.event_type)}`}>
+                      {event.event_type.replace('_', ' ')}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.event_name}
+                    {event.context || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {event.component || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {event.count}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {event.date}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {event.content_title || event.action || '-'}
+                    {event.score && ` (Score: ${event.score}%)`}
+                    {event.progress_percentage && ` (Progress: ${event.progress_percentage}%)`}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Insights */}
-      <div className="card mt-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Learning Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Most Active Time</h4>
-            <p className="text-blue-700">You're most active during weekday evenings</p>
-          </div>
-          <div className="p-4 bg-green-50 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">Learning Streak</h4>
-            <p className="text-green-700">You've been learning for 5 consecutive days</p>
-          </div>
-          <div className="p-4 bg-purple-50 rounded-lg">
-            <h4 className="font-medium text-purple-900 mb-2">Quiz Performance</h4>
-            <p className="text-purple-700">Your quiz scores are improving over time</p>
-          </div>
-          <div className="p-4 bg-orange-50 rounded-lg">
-            <h4 className="font-medium text-orange-900 mb-2">Content Preference</h4>
-            <p className="text-orange-700">You prefer video content over text</p>
-          </div>
         </div>
       </div>
     </div>
