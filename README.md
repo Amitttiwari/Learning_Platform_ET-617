@@ -3,8 +3,8 @@
 A comprehensive web-based learning system with clickstream analytics tracking.
 
 ## 🚀 Live Demo
-- **Frontend:** [Your Vercel URL]
-- **Backend:** [Your Render URL]
+- **Frontend:** https://ashwaniiitbb.github.io/et617
+- **Backend:** https://learning-platform-backend-knkr.onrender.com
 
 ## ✨ Features
 
@@ -111,21 +111,14 @@ et617/
    NODE_ENV=production
    PORT=10000
    JWT_SECRET=your-secure-secret
-   CLIENT_URL=https://your-frontend-url.vercel.app
+   CLIENT_URL=https://ashwaniiitbb.github.io/et617
    ```
 
-### Frontend (Vercel)
-1. Go to [Vercel.com](https://vercel.com)
-2. Create new project
-3. Import GitHub repository
-4. Configure:
-   - Framework: Create React App
-   - Root Directory: `client`
-   - Build Command: `npm run build`
-5. Add environment variable:
-   ```
-   REACT_APP_API_URL=https://your-backend-url.onrender.com
-   ```
+### Frontend (GitHub Pages)
+1. Go to [GitHub Pages](https://pages.github.com)
+2. Enable Pages in repository settings
+3. Select `gh-pages` branch
+4. Site will be available at: `https://ashwaniiitbb.github.io/et617`
 
 ## 📊 Analytics Features
 
@@ -197,4 +190,3 @@ This project is licensed under the MIT License.
 ---
 
 **Built with ❤️ for ET617 Learning Analytics Assignment**
-# Updated for deployment
