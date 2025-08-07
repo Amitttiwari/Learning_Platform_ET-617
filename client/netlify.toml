@@ -1,9 +1,10 @@
 [build]
-  command = "npm run build"
+  command = "chmod +x build.sh && ./build.sh"
   publish = "build"
 
 [build.environment]
   NODE_VERSION = "18"
+  CI = "false"
 
 [[redirects]]
   from = "/*"
