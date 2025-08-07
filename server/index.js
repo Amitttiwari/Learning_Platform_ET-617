@@ -44,6 +44,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Force redeploy - CORS fix for Netlify domains
+console.log('CORS configured for Netlify domains');
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
