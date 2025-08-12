@@ -1,303 +1,274 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './AuthContext';
 
 const AnalyticsContext = createContext();
 
-export const useAnalytics = () => useContext(AnalyticsContext);
+// Hardcoded API URL for deployment
+const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
+
+export const useAnalytics = () => {
+  const context = useContext(AnalyticsContext);
+  if (!context) {
+    throw new Error('useAnalytics must be used within an AnalyticsProvider');
+  }
+  return context;
+};
 
 export const AnalyticsProvider = ({ children }) => {
-  const [events, setEvents] = useState([]);
+  const { user, isAuthenticated } = useAuth();
 
-  // Track course view
-  const trackCourseView = (courseId, courseTitle, courseContext = '') => {
-    const event = {
-      event_type: 'course_view',
+  // Simulate IP address for demo purposes
+  const getSimulatedIP = () => {
+    const ips = [
+      '10.167.9.55', '103.21.126.80', '10.96.2.53', '49.36.121.136',
+      '10.17.35.67', '152.58.44.236', '10.96.1.203', '192.168.1.100'
+    ];
+    return ips[Math.floor(Math.random() * ips.length)];
+  };
+
+  // Get current timestamp in the required format
+  const getCurrentTimestamp = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
+  };
+
+  // Enhanced event tracking with proper format
+  const trackEvent = (eventData) => {
+    if (!isAuthenticated || !user) {
+      console.log('Analytics: User not authenticated, skipping event');
+      return;
+    }
+
+    const baseEvent = {
+      timestamp: getCurrentTimestamp(),
+      user_id: user.id,
+      username: user.username,
+      ip_address: getSimulatedIP(),
+      user_agent: navigator.userAgent,
+      origin: 'web',
+      ...eventData
+    };
+
+    console.log('📊 Analytics Event:', baseEvent);
+    sendEventToBackend(baseEvent);
+  };
+
+  // Specific tracking functions
+  const trackPageView = (pageName, pageContext = '') => {
+    trackEvent({
+      event_context: pageContext || 'System',
+      component: 'Navigation',
+      event_name: 'Page viewed',
+      description: `User ${user.username} viewed the ${pageName} page`,
+      page_name: pageName,
+      navigation_type: 'page_view'
+    });
+  };
+
+  const trackCourseView = (courseId, courseTitle) => {
+    trackEvent({
+      event_context: `Course: ${courseTitle}`,
+      component: 'System',
       event_name: 'Course viewed',
-      component: 'Course',
-      description: `User viewed course: ${courseTitle}`,
+      description: `User ${user.username} viewed the course with id '${courseId}'`,
       course_id: courseId,
       course_title: courseTitle,
-      course_context: courseContext,
-      page_url: window.location.href,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Course View:', event);
-    sendEventToBackend(event);
-    addEvent(event);
+      content_type: 'course'
+    });
   };
 
-  // Track content module view
-  const trackContentModuleView = (courseId, moduleId, moduleTitle, moduleType) => {
-    const event = {
-      event_type: 'content_module_view',
-      event_name: 'Content module viewed',
-      component: moduleType.charAt(0).toUpperCase() + moduleType.slice(1),
-      description: `User viewed ${moduleType} module: ${moduleTitle}`,
-      course_id: courseId,
-      content_id: moduleId,
-      content_title: moduleTitle,
-      content_type: moduleType,
-      page_url: window.location.href,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Content Module View:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-
-  // Track page view
-  const trackPageView = (pageName, pageUrl = window.location.href) => {
-    const event = {
-      event_type: 'page_view',
-      event_name: `${pageName} viewed`,
-      component: pageName,
-      description: `User viewed ${pageName} page`,
-      page_url: pageUrl,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Page View:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track content view
-  const trackContentView = (courseId, contentId, contentTitle) => {
-    const event = {
-      event_type: 'content_view',
-      event_name: 'Content viewed',
-      component: 'CourseContent',
-      description: `User viewed content: ${contentTitle}`,
-      course_id: courseId,
+  const trackContentModuleView = (contentId, contentTitle, contentType, courseTitle) => {
+    trackEvent({
+      event_context: `Course: ${courseTitle}`,
+      component: contentType === 'quiz' ? 'Quiz' : 'Content',
+      event_name: `${contentType} viewed`,
+      description: `User ${user.username} viewed the ${contentType} '${contentTitle}' in course '${courseTitle}'`,
       content_id: contentId,
       content_title: contentTitle,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Content View:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track video interaction
-  const trackVideoInteraction = (courseId, contentId, action) => {
-    const event = {
-      event_type: 'video_interaction',
-      event_name: 'Video interaction',
-      component: 'VideoPlayer',
-      description: `User ${action} video`,
-      course_id: courseId,
-      content_id: contentId,
-      action: action,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Video Interaction:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track quiz interaction
-  const trackQuizInteraction = (courseId, contentId, action, data = {}) => {
-    const event = {
-      event_type: 'quiz_interaction',
-      event_name: 'Quiz interaction',
-      component: 'Quiz',
-      description: `User ${action} quiz`,
-      course_id: courseId,
-      content_id: contentId,
-      action: action,
-      score: data.score,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Quiz Interaction:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track progress update
-  const trackProgressUpdate = (courseId, contentId, progressPercentage, timeSpent) => {
-    const event = {
-      event_type: 'progress_update',
-      event_name: 'Progress updated',
-      component: 'ProgressTracker',
-      description: `User updated progress to ${progressPercentage}%`,
-      course_id: courseId,
-      content_id: contentId,
-      progress_percentage: progressPercentage,
-      time_spent: timeSpent,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Progress Update:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track button click
-  const trackButtonClick = (buttonName, component, data = {}) => {
-    const event = {
-      event_type: 'button_click',
-      event_name: 'Button clicked',
-      component: component,
-      description: `User clicked ${buttonName} button`,
-      button_name: buttonName,
-      event_data: JSON.stringify(data),
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Button Click:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Track form submission
-  const trackFormSubmission = (formName, component, success, data = {}) => {
-    const event = {
-      event_type: 'form_submission',
-      event_name: 'Form submitted',
-      component: component,
-      description: `User submitted ${formName} form (${success ? 'success' : 'failed'})`,
-      form_name: formName,
-      success: success,
-      event_data: JSON.stringify(data),
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Form Submission:', event);
-    sendEventToBackend(event);
-    addEvent(event);
+      content_type: contentType,
+      course_title: courseTitle
+    });
   };
 
-  // Track navigation
-  const trackNavigation = (fromPage, toPage, navigationType = 'click') => {
-    const event = {
-      event_type: 'navigation',
-      event_name: 'Page navigation',
+  const trackVideoAction = (action, videoTitle, courseTitle, timeSpent = 0) => {
+    trackEvent({
+      event_context: `Course: ${courseTitle}`,
+      component: 'Video',
+      event_name: `Video ${action}`,
+      description: `User ${user.username} ${action} the video '${videoTitle}'`,
+      video_title: videoTitle,
+      course_title: courseTitle,
+      action: action,
+      time_spent: timeSpent,
+      content_type: 'video'
+    });
+  };
+
+  const trackQuizAttempt = (quizTitle, courseTitle, score, totalQuestions, timeSpent = 0) => {
+    trackEvent({
+      event_context: `Course: ${courseTitle}`,
+      component: 'Quiz',
+      event_name: 'Quiz attempted',
+      description: `User ${user.username} attempted the quiz '${quizTitle}' with score ${score}/${totalQuestions}`,
+      quiz_title: quizTitle,
+      course_title: courseTitle,
+      score: score,
+      total_questions: totalQuestions,
+      progress_percentage: Math.round((score / totalQuestions) * 100),
+      time_spent: timeSpent,
+      content_type: 'quiz'
+    });
+  };
+
+  const trackProgressUpdate = (contentTitle, courseTitle, isCompleted, timeSpent = 0) => {
+    trackEvent({
+      event_context: `Course: ${courseTitle}`,
+      component: 'Progress',
+      event_name: isCompleted ? 'Content completed' : 'Progress updated',
+      description: `User ${user.username} ${isCompleted ? 'completed' : 'updated progress on'} '${contentTitle}'`,
+      content_title: contentTitle,
+      course_title: courseTitle,
+      action: isCompleted ? 'mark_complete' : 'progress_update',
+      time_spent: timeSpent,
+      success: true
+    });
+  };
+
+  const trackButtonClick = (buttonName, pageName, context = '') => {
+    trackEvent({
+      event_context: context || 'System',
+      component: 'Button',
+      event_name: 'Button clicked',
+      description: `User ${user.username} clicked the '${buttonName}' button on ${pageName}`,
+      button_name: buttonName,
+      page_name: pageName,
+      action: 'button_click'
+    });
+  };
+
+  const trackFormSubmission = (formName, pageName, success = true) => {
+    trackEvent({
+      event_context: 'System',
+      component: 'Form',
+      event_name: 'Form submitted',
+      description: `User ${user.username} submitted the '${formName}' form on ${pageName}`,
+      form_name: formName,
+      page_name: pageName,
+      action: 'form_submission',
+      success: success
+    });
+  };
+
+  const trackNavigation = (fromPage, toPage, navigationType = 'link') => {
+    trackEvent({
+      event_context: 'System',
       component: 'Navigation',
-      description: `User navigated from ${fromPage} to ${toPage}`,
+      event_name: 'Navigation',
+      description: `User ${user.username} navigated from '${fromPage}' to '${toPage}'`,
       navigation_type: navigationType,
       from_page: fromPage,
       to_page: toPage,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Navigation:', event);
-    sendEventToBackend(event);
-    addEvent(event);
+      action: 'navigation'
+    });
   };
 
-  // Track search
-  const trackSearch = (searchTerm, searchResults = 0) => {
-    const event = {
-      event_type: 'search',
-      event_name: 'Search performed',
+  const trackSearch = (searchTerm, resultsCount = 0) => {
+    trackEvent({
+      event_context: 'System',
       component: 'Search',
-      description: `User searched for: ${searchTerm}`,
+      event_name: 'Search performed',
+      description: `User ${user.username} searched for '${searchTerm}'`,
       search_term: searchTerm,
-      search_results: searchResults,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Search:', event);
-    sendEventToBackend(event);
-    addEvent(event);
+      search_results: resultsCount,
+      action: 'search'
+    });
   };
 
-  // Track error
-  const trackError = (errorType, errorMessage, component) => {
-    const event = {
-      event_type: 'error',
+  const trackError = (errorType, errorMessage, pageName) => {
+    trackEvent({
+      event_context: 'System',
+      component: 'Error',
       event_name: 'Error occurred',
-      component: component,
-      description: `Error: ${errorMessage}`,
+      description: `User ${user.username} encountered a ${errorType} error on ${pageName}`,
       error_type: errorType,
       error_message: errorMessage,
-      timestamp: new Date().toISOString(),
-      user_agent: navigator.userAgent,
-      origin: 'web'
-    };
-    
-    console.log('📊 Error:', event);
-    sendEventToBackend(event);
-    addEvent(event);
-  };
-  
-  // Send event to backend
-  const sendEventToBackend = async (event) => {
-    try {
-      // Add a longer delay to prevent rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const response = await axios.post('/api/analytics/events', event);
-      console.log('✅ Analytics event sent successfully:', event.event_type);
-    } catch (error) {
-      // Don't log rate limit errors to avoid spam
-      if (error.response && error.response.status === 429) {
-        console.log('⚠️ Rate limited - analytics event skipped');
-      } else if (error.response && error.response.status === 404) {
-        console.log('⚠️ Analytics endpoint not found - event skipped');
-      } else {
-        console.error('Error sending event to backend:', error.message);
-      }
-    }
-  };
-  
-  // Add event to local state
-  const addEvent = (event) => {
-    setEvents(prev => [event, ...prev.slice(0, 99)]); // Keep last 100 events
-  };
-  
-  // Get all events
-  const getEvents = () => {
-    return events;
-  };
-  
-  // Clear events
-  const clearEvents = () => {
-    setEvents([]);
+      page_name: pageName,
+      action: 'error'
+    });
   };
 
+  const trackLogin = (success = true, errorMessage = '') => {
+    trackEvent({
+      event_context: 'System',
+      component: 'Authentication',
+      event_name: success ? 'User logged in' : 'Login failed',
+      description: success 
+        ? `User ${user.username} logged in successfully`
+        : `Login failed for user: ${errorMessage}`,
+      action: 'login',
+      success: success,
+      error_message: errorMessage
+    });
+  };
+
+  const trackLogout = () => {
+    trackEvent({
+      event_context: 'System',
+      component: 'Authentication',
+      event_name: 'User logged out',
+      description: `User ${user.username} logged out`,
+      action: 'logout',
+      success: true
+    });
+  };
+
+  // Send event to backend with delay to prevent rate limiting
+  const sendEventToBackend = async (eventData) => {
+    setTimeout(async () => {
+      try {
+        const response = await axios.post(`${API_URL}/api/analytics/events`, eventData);
+        console.log('✅ Analytics event sent successfully:', eventData.event_name);
+      } catch (error) {
+        if (error.response?.status === 404 || error.response?.status === 429) {
+          console.log('⚠️ Analytics event skipped (rate limited or endpoint not found)');
+        } else {
+          console.error('❌ Failed to send analytics event:', error);
+        }
+      }
+    }, 500); // 500ms delay to prevent rate limiting
+  };
+
+  // Track page views automatically
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const currentPage = window.location.pathname;
+      trackPageView(currentPage);
+    }
+  }, [isAuthenticated, user]);
+
   const value = {
+    trackEvent,
+    trackPageView,
     trackCourseView,
     trackContentModuleView,
-    trackPageView,
-    trackContentView,
-    trackVideoInteraction,
-    trackQuizInteraction,
+    trackVideoAction,
+    trackQuizAttempt,
     trackProgressUpdate,
     trackButtonClick,
     trackFormSubmission,
     trackNavigation,
     trackSearch,
     trackError,
-    getEvents,
-    clearEvents
+    trackLogin,
+    trackLogout
   };
 
   return (

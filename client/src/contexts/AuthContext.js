@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 const AuthContext = createContext();
+
+// Hardcoded API URL for deployment
+const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -14,133 +17,154 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  // Hardcoded API URL - no environment variable needed
-  const API_URL = 'https://learning-platform-backend-knkr.onrender.com';
 
   // Configure axios defaults
-  useEffect(() => {
-    // Set base URL for production
-    axios.defaults.baseURL = API_URL;
+  axios.defaults.baseURL = API_URL;
 
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
-  }, [token]);
-
-  // Check if user is authenticated on mount
+  // Check for existing session on app load
   useEffect(() => {
-    const checkAuth = async () => {
-      if (token) {
-        try {
-          const response = await axios.get('/api/auth/profile');
-          setUser(response.data.user);
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          localStorage.removeItem('token');
-          setToken(null);
-        }
+    const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (savedToken && savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setToken(savedToken);
+        setUser(userData);
+        
+        // Set axios default header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+      } catch (error) {
+        console.error('Error parsing saved user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, [token]);
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (credentials) => {
     try {
+      setLoading(true);
+      
+      // First try backend login
       const response = await axios.post('/api/auth/login', credentials);
       
       if (response.data.token) {
-        const { token, user } = response.data;
-        localStorage.setItem('token', token);
-        setToken(token);
-        setUser(user);
+        const { token: newToken, user: userData } = response.data;
+        
+        // Save to localStorage
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Update state
+        setToken(newToken);
+        setUser(userData);
+        
+        // Set axios header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
         setLoading(false);
         toast.success('Login successful!');
         return { success: true };
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Backend login failed:', error);
       
-      // Fallback for testing - if backend is not available, use mock login
-      if (error.response?.status === 401 || error.response?.status === 500) {
-        console.log('Using fallback login for testing...');
+      // Only use fallback for network/server errors, not invalid credentials
+      if (error.response?.status === 500 || error.code === 'NETWORK_ERROR' || !error.response) {
+        console.log('Using fallback login due to server error...');
         
-        // Mock successful login for testing
+        // Create consistent mock user based on credentials
         const mockUser = {
-          id: 1,
+          id: Date.now(), // Unique ID based on timestamp
           username: credentials.username,
           email: `${credentials.username}@example.com`,
-          firstName: 'Test',
+          firstName: credentials.username.charAt(0).toUpperCase() + credentials.username.slice(1),
           lastName: 'User',
-          role: 'learner'
+          role: 'learner',
+          createdAt: new Date().toISOString()
         };
         
-        const mockToken = 'mock-jwt-token-for-testing';
+        const mockToken = `mock-token-${Date.now()}`;
+        
+        // Save to localStorage
         localStorage.setItem('token', mockToken);
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        
+        // Update state
         setToken(mockToken);
         setUser(mockUser);
+        
         setLoading(false);
         toast.success('Login successful! (Test Mode)');
         return { success: true };
       }
       
-      toast.error(error.response?.data?.error || 'Login failed');
-      return { success: false };
+      // For 401 (invalid credentials), show proper error
+      const errorMessage = error.response?.data?.error || 'Invalid username or password';
+      toast.error(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
   };
 
   const register = async (userData) => {
     try {
+      setLoading(true);
       const response = await axios.post('/api/auth/register', userData);
-      const { token: newToken, user: userInfo } = response.data;
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      setUser(userInfo);
-      
-      toast.success('Registration successful!');
-      return { success: true };
+      if (response.data.token) {
+        const { token: newToken, user: newUser } = response.data;
+        
+        // Save to localStorage
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        
+        // Update state
+        setToken(newToken);
+        setUser(newUser);
+        
+        // Set axios header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        
+        setLoading(false);
+        toast.success('Registration successful!');
+        return { success: true };
+      }
     } catch (error) {
       const message = error.response?.data?.error || 'Registration failed';
       toast.error(message);
+      setLoading(false);
       return { success: false, error: message };
     }
   };
 
   const logout = () => {
+    // Clear localStorage
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Clear state
     setToken(null);
     setUser(null);
+    
+    // Clear axios header
+    delete axios.defaults.headers.common['Authorization'];
+    
     toast.success('Logged out successfully');
-  };
-
-  const updateProfile = async (profileData) => {
-    try {
-      const response = await axios.put('/api/auth/profile', profileData);
-      setUser(response.data.user);
-      toast.success('Profile updated successfully');
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.error || 'Profile update failed';
-      toast.error(message);
-      return { success: false, error: message };
-    }
   };
 
   const value = {
     user,
+    token,
     loading,
     login,
     register,
     logout,
-    updateProfile,
-    isAuthenticated: !!user,
+    isAuthenticated: !!token
   };
 
   return (

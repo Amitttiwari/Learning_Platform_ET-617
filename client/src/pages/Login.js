@@ -1,152 +1,166 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useAuth } from '../contexts/AuthContext';
 import { useAnalytics } from '../contexts/AnalyticsContext';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { Eye, EyeOff, LogIn, User, Lock } from 'lucide-react';
 
 const Login = ({ onNavigate }) => {
-  const { login } = useAuth();
-  const { trackFormSubmission } = useAnalytics();
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
+  const { trackFormSubmission, trackButtonClick } = useAnalytics();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    trackFormSubmission('Login', 'Login Page', true, { username: data.username });
-    
-    const result = await login(data);
-    if (result.success) {
-      if (onNavigate) {
-        onNavigate('dashboard');
-      }
-    }
-    setIsLoading(false);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Signing in..." />;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    // Track form submission
+    trackFormSubmission('login', 'Login Page');
+    
+    try {
+      const result = await login(formData);
+      if (result.success) {
+        onNavigate('dashboard');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterClick = () => {
+    trackButtonClick('Register Link', 'Login Page');
+    onNavigate('register');
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-            <Mail className="h-6 w-6 text-blue-600" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
+            <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <button
-              onClick={() => onNavigate && onNavigate('register')}
-              className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
-            >
-              create a new account
-            </button>
-          </p>
+          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-slate-400">Sign in to continue your learning journey</p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username or Email
+
+        {/* Login Form */}
+        <div className="card glass">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username Field */}
+            <div className="form-group">
+              <label htmlFor="username" className="form-label flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Username
               </label>
-              <div className="mt-1 relative">
-                <input
-                  id="username"
-                  type="text"
-                  {...register('username', { 
-                    required: 'Username or email is required' 
-                  })}
-                  className="input pl-10"
-                  placeholder="Enter your username or email"
-                />
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              </div>
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
-              )}
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your username"
+                required
+              />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            {/* Password Field */}
+            <div className="form-group">
+              <label htmlFor="password" className="form-label flex items-center gap-2">
+                <Lock className="w-4 h-4" />
                 Password
               </label>
-              <div className="mt-1 relative">
+              <div className="relative">
                 <input
-                  id="password"
                   type={showPassword ? 'text' : 'password'}
-                  {...register('password', { 
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
-                  })}
-                  className="input pl-10 pr-10"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="input pr-12"
                   placeholder="Enter your password"
+                  required
                 />
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
             </div>
 
-            <div className="text-sm">
-              <button
-                type="button"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Forgot your password?
-              </button>
-            </div>
-          </div>
-
-          <div>
+            {/* Submit Button */}
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className="btn btn-primary w-full flex items-center justify-center gap-2 py-3"
             >
-              Sign in
+              {isLoading ? (
+                <>
+                  <div className="spinner w-5 h-5"></div>
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-5 h-5" />
+                  Sign In
+                </>
+              )}
             </button>
+          </form>
+
+          {/* Divider */}
+          <div className="my-6 flex items-center">
+            <div className="flex-1 border-t border-slate-600"></div>
+            <span className="px-4 text-slate-400 text-sm">or</span>
+            <div className="flex-1 border-t border-slate-600"></div>
           </div>
-        </form>
+
+          {/* Register Link */}
+          <div className="text-center">
+            <p className="text-slate-400 mb-4">
+              Don't have an account?{' '}
+              <button
+                onClick={handleRegisterClick}
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Create one here
+              </button>
+            </p>
+          </div>
+
+          {/* Test Credentials */}
+          <div className="mt-6 p-4 bg-slate-750 rounded-lg border border-slate-600">
+            <h3 className="text-sm font-medium text-slate-300 mb-2">Test Credentials:</h3>
+            <div className="text-xs text-slate-400 space-y-1">
+              <p><strong>Username:</strong> ashwani</p>
+              <p><strong>Password:</strong> learner123</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-slate-500 text-sm">
+            © 2024 Learning Platform. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );
