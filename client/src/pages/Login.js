@@ -149,8 +149,9 @@ const Login = ({ onNavigate }) => {
           <div className="mt-6 p-4 bg-slate-750 rounded-lg border border-slate-600">
             <h3 className="text-sm font-medium text-slate-300 mb-2">Test Credentials:</h3>
             <div className="text-xs text-slate-400 space-y-1">
-              <p><strong>Username:</strong> ashwani</p>
-              <p><strong>Password:</strong> learner123</p>
+              <p><strong>Learner:</strong> ashwani / learner123</p>
+              <p><strong>Admin:</strong> admin / admin123</p>
+              <p><strong>Instructor:</strong> instructor / instructor123</p>
             </div>
           </div>
         </div>

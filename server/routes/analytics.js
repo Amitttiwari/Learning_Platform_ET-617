@@ -9,6 +9,274 @@ const { db } = require('../database/init');
 
 const router = express.Router();
 
+// Middleware to check if user is admin
+const requireAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};
+
+// Get all users' analytics (admin only)
+router.get('/admin/all-users', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        u.id as user_id,
+        u.username,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.role,
+        u.created_at,
+        u.last_login,
+        COUNT(ce.id) as total_events,
+        COUNT(DISTINCT ce.event_name) as unique_events,
+        MAX(ce.timestamp) as last_activity
+      FROM users u
+      LEFT JOIN clickstream_events ce ON u.id = ce.user_id
+      GROUP BY u.id, u.username, u.email, u.first_name, u.last_name, u.role, u.created_at, u.last_login
+      ORDER BY u.created_at DESC
+    `;
+    
+    db.all(query, (err, users) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      res.json({ users });
+    });
+  } catch (error) {
+    console.error('Error fetching all users analytics:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all clickstream events (admin only)
+router.get('/admin/all-events', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { page = 1, limit = 100, user_id, event_type, start_date, end_date } = req.query;
+    const offset = (page - 1) * limit;
+    
+    let whereClause = 'WHERE 1=1';
+    const params = [];
+    
+    if (user_id) {
+      whereClause += ' AND ce.user_id = ?';
+      params.push(user_id);
+    }
+    
+    if (event_type) {
+      whereClause += ' AND ce.event_name LIKE ?';
+      params.push(`%${event_type}%`);
+    }
+    
+    if (start_date) {
+      whereClause += ' AND ce.timestamp >= ?';
+      params.push(start_date);
+    }
+    
+    if (end_date) {
+      whereClause += ' AND ce.timestamp <= ?';
+      params.push(end_date);
+    }
+    
+    const query = `
+      SELECT 
+        ce.*,
+        u.username,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.role
+      FROM clickstream_events ce
+      LEFT JOIN users u ON ce.user_id = u.id
+      ${whereClause}
+      ORDER BY ce.timestamp DESC
+      LIMIT ? OFFSET ?
+    `;
+    
+    params.push(parseInt(limit), offset);
+    
+    db.all(query, params, (err, events) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Get total count for pagination
+      const countQuery = `
+        SELECT COUNT(*) as total
+        FROM clickstream_events ce
+        LEFT JOIN users u ON ce.user_id = u.id
+        ${whereClause}
+      `;
+      
+      db.get(countQuery, params.slice(0, -2), (err, countResult) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({
+          events,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: countResult.total,
+            pages: Math.ceil(countResult.total / limit)
+          }
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching all events:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Export all analytics data as CSV (admin only)
+router.get('/admin/export-all', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        ce.timestamp as "Time",
+        ce.event_context as "Event context",
+        ce.component as "Component",
+        ce.event_name as "Event name",
+        ce.description as "Description",
+        ce.origin as "Origin",
+        ce.ip_address as "IP address",
+        u.username as "Username",
+        u.email as "User Email",
+        u.role as "User Role",
+        ce.course_title as "Course Title",
+        ce.content_type as "Content Type",
+        ce.action as "Action",
+        ce.score as "Score",
+        ce.progress_percentage as "Progress %",
+        ce.time_spent as "Time Spent (seconds)",
+        ce.button_name as "Button Name",
+        ce.form_name as "Form Name",
+        ce.success as "Success",
+        ce.navigation_type as "Navigation Type",
+        ce.from_page as "From Page",
+        ce.to_page as "To Page",
+        ce.search_term as "Search Term",
+        ce.search_results as "Search Results",
+        ce.error_type as "Error Type",
+        ce.error_message as "Error Message"
+      FROM clickstream_events ce
+      LEFT JOIN users u ON ce.user_id = u.id
+      ORDER BY ce.timestamp DESC
+    `;
+    
+    db.all(query, (err, events) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (events.length === 0) {
+        return res.status(404).json({ error: 'No events found' });
+      }
+      
+      // Convert to CSV
+      const headers = Object.keys(events[0]);
+      const csvContent = [
+        headers.join(','),
+        ...events.map(event => 
+          headers.map(header => {
+            const value = event[header];
+            // Escape commas and quotes in CSV
+            if (value === null || value === undefined) return '';
+            const stringValue = String(value);
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+              return `"${stringValue.replace(/"/g, '""')}"`;
+            }
+            return stringValue;
+          }).join(',')
+        )
+      ].join('\n');
+      
+      // Set response headers for CSV download
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="all_analytics_${new Date().toISOString().split('T')[0]}.csv"`);
+      
+      res.send(csvContent);
+    });
+  } catch (error) {
+    console.error('Error exporting analytics:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get analytics summary for admin dashboard
+router.get('/admin/summary', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    // Get total users
+    db.get('SELECT COUNT(*) as total_users FROM users', (err, userCount) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Get total events
+      db.get('SELECT COUNT(*) as total_events FROM clickstream_events', (err, eventCount) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        // Get events by type
+        db.all(`
+          SELECT event_name, COUNT(*) as count
+          FROM clickstream_events
+          GROUP BY event_name
+          ORDER BY count DESC
+          LIMIT 10
+        `, (err, eventTypes) => {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Database error' });
+          }
+          
+          // Get recent activity
+          db.all(`
+            SELECT 
+              ce.timestamp,
+              ce.event_name,
+              ce.description,
+              u.username
+            FROM clickstream_events ce
+            LEFT JOIN users u ON ce.user_id = u.id
+            ORDER BY ce.timestamp DESC
+            LIMIT 20
+          `, (err, recentActivity) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ error: 'Database error' });
+            }
+            
+            res.json({
+              summary: {
+                total_users: userCount.total_users,
+                total_events: eventCount.total_events,
+                event_types: eventTypes,
+                recent_activity: recentActivity
+              }
+            });
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching admin summary:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Track individual analytics event
 router.post('/events', async (req, res) => {
   try {

@@ -79,7 +79,7 @@ body {
   }
 
   .card-footer {
-    @apply p-6 border-t border-slate-700 bg-slate-750 rounded-b-xl;
+    @apply p-6 border-t border-slate-700 bg-slate-700 rounded-b-xl;
   }
 
   /* Navigation styles */
@@ -134,6 +134,11 @@ body {
   /* Glass effect */
   .glass {
     @apply bg-slate-800/50 backdrop-blur-sm border border-slate-700/50;
+  }
+
+  /* Custom background for admin dashboard */
+  .bg-slate-750 {
+    background-color: #2d3748;
   }
 
   /* Hover effects */
@@ -224,7 +229,7 @@ body {
   }
 
   .analytics-table tr:hover {
-    @apply bg-slate-750;
+    @apply bg-slate-700;
   }
 
   /* Status indicators */
