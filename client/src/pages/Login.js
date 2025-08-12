@@ -149,9 +149,12 @@ const Login = ({ onNavigate }) => {
           <div className="mt-6 p-4 bg-slate-750 rounded-lg border border-slate-600">
             <h3 className="text-sm font-medium text-slate-300 mb-2">Test Credentials:</h3>
             <div className="text-xs text-slate-400 space-y-1">
-              <p><strong>Learner:</strong> ashwani / learner123</p>
-              <p><strong>Admin:</strong> admin / admin123</p>
-              <p><strong>Instructor:</strong> instructor / instructor123</p>
+              <p><strong>🔴 Admin (View All Users):</strong> admin / admin123</p>
+              <p><strong>🟢 Learner:</strong> ashwani / learner123</p>
+              <p><strong>🟡 Instructor:</strong> instructor / instructor123</p>
+            </div>
+            <div className="mt-3 p-2 bg-blue-900/20 border border-blue-600/30 rounded text-xs text-blue-300">
+              <strong>💡 Admin Tip:</strong> Login as admin to see ALL user activities, clickstream data, and export everything to CSV!
             </div>
           </div>
         </div>
