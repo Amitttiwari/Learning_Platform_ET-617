@@ -139,6 +139,8 @@ router.get('/admin/all-events', authenticateToken, requireAdmin, async (req, res
 // Export all analytics data as CSV (admin only)
 router.get('/admin/export-all', authenticateToken, requireAdmin, async (req, res) => {
   try {
+    console.log('Export request from user:', req.user.username, 'Role:', req.user.role);
+    
     const query = `
       SELECT 
         ce.timestamp as "Time",
@@ -178,6 +180,8 @@ router.get('/admin/export-all', authenticateToken, requireAdmin, async (req, res
         return res.status(500).json({ error: 'Database error' });
       }
       
+      console.log('Found events:', events.length);
+      
       if (events.length === 0) {
         return res.status(404).json({ error: 'No events found' });
       }
@@ -199,6 +203,8 @@ router.get('/admin/export-all', authenticateToken, requireAdmin, async (req, res
           }).join(',')
         )
       ].join('\n');
+      
+      console.log('CSV content length:', csvContent.length);
       
       // Set response headers for CSV download
       res.setHeader('Content-Type', 'text/csv');
@@ -273,6 +279,37 @@ router.get('/admin/summary', authenticateToken, requireAdmin, async (req, res) =
     });
   } catch (error) {
     console.error('Error fetching admin summary:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update user progress
+router.post('/progress', authenticateToken, async (req, res) => {
+  try {
+    const { courseId, contentId, progressPercentage, timeSpent, completed } = req.body;
+    const userId = req.user.id;
+
+    // Insert or update user progress
+    const query = `
+      INSERT OR REPLACE INTO user_progress 
+      (user_id, course_id, content_id, progress_percentage, completed, time_spent_seconds, last_accessed)
+      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `;
+
+    db.run(query, [userId, courseId, contentId, progressPercentage, completed ? 1 : 0, timeSpent || 0], function(err) {
+      if (err) {
+        console.error('Error updating progress:', err);
+        return res.status(500).json({ error: 'Failed to update progress' });
+      }
+
+      res.json({ 
+        success: true, 
+        message: 'Progress updated successfully',
+        progressId: this.lastID 
+      });
+    });
+  } catch (error) {
+    console.error('Error updating progress:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -411,10 +448,10 @@ router.get('/user/events', async (req, res) => {
   }
 });
 
-// Get user analytics summary
-router.get('/user', async (req, res) => {
+// Get user analytics summary with individual progress tracking
+router.get('/user', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.id || 1;
+    const userId = req.user.id;
     const period = req.query.period || '7d';
     
     // Calculate date range based on period
@@ -434,58 +471,95 @@ router.get('/user', async (req, res) => {
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     }
 
-    const sql = `
+    // Get comprehensive user analytics
+    const analyticsQuery = `
       SELECT 
         COUNT(*) as total_events,
-        SUM(CASE WHEN event_type = 'video_interaction' THEN time_spent ELSE 0 END) as total_time_spent,
-        AVG(CASE WHEN event_type = 'quiz_interaction' AND score IS NOT NULL THEN score ELSE NULL END) as average_score,
-        COUNT(DISTINCT CASE WHEN event_type = 'progress_update' AND progress_percentage = 100 THEN content_id END) as courses_completed,
-        COUNT(DISTINCT course_id) as total_courses
+        SUM(CASE WHEN content_type = 'video' THEN time_spent ELSE 0 END) as total_time_spent,
+        AVG(CASE WHEN content_type = 'quiz' AND score IS NOT NULL THEN score ELSE NULL END) as average_score,
+        COUNT(DISTINCT CASE WHEN event_name = 'Content completed' THEN content_id END) as content_completed,
+        COUNT(DISTINCT course_id) as courses_viewed,
+        COUNT(DISTINCT CASE WHEN event_name = 'Quiz attempted' THEN content_id END) as quizzes_taken,
+        MAX(timestamp) as last_activity
       FROM clickstream_events 
       WHERE user_id = ? AND timestamp >= ?
     `;
     
-    db.get(sql, [userId, startDate.toISOString()], (err, row) => {
+    // Get user's course progress
+    const progressQuery = `
+      SELECT 
+        c.id as course_id,
+        c.title as course_title,
+        c.description as course_description,
+        COUNT(cc.id) as total_content,
+        COUNT(up.content_id) as completed_content,
+        SUM(up.time_spent_seconds) as total_time_spent,
+        MAX(up.last_accessed) as last_accessed
+      FROM courses c
+      LEFT JOIN course_content cc ON c.id = cc.course_id
+      LEFT JOIN user_progress up ON cc.id = up.content_id AND up.user_id = ?
+      WHERE c.is_published = 1
+      GROUP BY c.id
+      ORDER BY last_accessed DESC
+    `;
+
+    // Get recent achievements
+    const achievementsQuery = `
+      SELECT 
+        event_name,
+        content_title,
+        course_title,
+        timestamp,
+        score,
+        progress_percentage
+      FROM clickstream_events 
+      WHERE user_id = ? AND event_name IN ('Content completed', 'Quiz attempted', 'Course viewed')
+      ORDER BY timestamp DESC
+      LIMIT 10
+    `;
+    
+    db.get(analyticsQuery, [userId, startDate.toISOString()], (err, analytics) => {
       if (err) {
         console.error('Error fetching analytics summary:', err);
         return res.status(500).json({ error: 'Failed to fetch analytics' });
       }
       
-      res.json({
-        success: true,
-        summary: {
-          totalEvents: row.total_events || 0,
-          totalTimeSpent: Math.round((row.total_time_spent || 0) / 60), // Convert to hours
-          averageScore: Math.round(row.average_score || 0),
-          coursesCompleted: row.courses_completed || 0,
-          totalCourses: row.total_courses || 0
+      db.all(progressQuery, [userId], (err, progress) => {
+        if (err) {
+          console.error('Error fetching progress:', err);
+          return res.status(500).json({ error: 'Failed to fetch progress' });
         }
+        
+        db.all(achievementsQuery, [userId], (err, achievements) => {
+          if (err) {
+            console.error('Error fetching achievements:', err);
+            return res.status(500).json({ error: 'Failed to fetch achievements' });
+          }
+          
+          res.json({
+            success: true,
+            summary: {
+              totalEvents: analytics.total_events || 0,
+              totalTimeSpent: Math.round((analytics.total_time_spent || 0) / 60), // Convert to minutes
+              averageScore: Math.round(analytics.average_score || 0),
+              contentCompleted: analytics.content_completed || 0,
+              coursesViewed: analytics.courses_viewed || 0,
+              quizzesTaken: analytics.quizzes_taken || 0,
+              lastActivity: analytics.last_activity
+            },
+            progress: progress.map(course => ({
+              ...course,
+              progressPercentage: course.total_content > 0 ? Math.round((course.completed_content / course.total_content) * 100) : 0,
+              timeSpentMinutes: Math.round((course.total_time_spent || 0) / 60)
+            })),
+            achievements: achievements
+          });
+        });
       });
     });
   } catch (error) {
     console.error('Error in analytics summary route:', error);
     res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get user's own analytics data
-router.get('/user', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const { startDate, endDate } = req.query;
-
-    const [analyticsData, activitySummary] = await Promise.all([
-      getAnalyticsData(userId, startDate, endDate),
-      getUserActivitySummary(userId)
-    ]);
-
-    res.json({
-      analytics: analyticsData,
-      summary: activitySummary
-    });
-  } catch (error) {
-    console.error('Analytics error:', error);
-    res.status(500).json({ error: 'Failed to fetch analytics data' });
   }
 });
 

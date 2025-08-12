@@ -28,6 +28,8 @@ const Profile = ({ onNavigate }) => {
   const { trackButtonClick, trackPageView } = useAnalytics();
   
   const [userAnalytics, setUserAnalytics] = useState(null);
+  const [userProgress, setUserProgress] = useState([]);
+  const [achievements, setAchievements] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,12 +50,16 @@ const Profile = ({ onNavigate }) => {
     try {
       setLoading(true);
       
-      // Fetch user's analytics data
+      // Fetch user's comprehensive analytics data
       const response = await axios.get(`${API_URL}/api/analytics/user`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
-      setUserAnalytics(response.data);
+      if (response.data.success) {
+        setUserAnalytics(response.data.summary);
+        setUserProgress(response.data.progress || []);
+        setAchievements(response.data.achievements || []);
+      }
       
       // Fetch recent activity
       const activityResponse = await axios.get(`${API_URL}/api/analytics/user/events`, {
@@ -64,27 +70,55 @@ const Profile = ({ onNavigate }) => {
       
     } catch (error) {
       console.error('Error fetching user analytics:', error);
-      // Set mock data for demo
+      // Set realistic mock data for demo
       setUserAnalytics({
-        total_events: 25,
-        courses_viewed: 1,
-        content_completed: 3,
-        quizzes_taken: 2,
-        average_quiz_score: 85,
-        total_time_spent: 120,
-        last_activity: new Date().toISOString()
+        totalEvents: 45,
+        totalTimeSpent: 180,
+        averageScore: 87,
+        contentCompleted: 8,
+        coursesViewed: 2,
+        quizzesTaken: 5,
+        lastActivity: new Date().toISOString()
       });
+      setUserProgress([
+        {
+          course_id: 1,
+          course_title: 'Complete Web Development Bootcamp',
+          progressPercentage: 65,
+          timeSpentMinutes: 120,
+          completed_content: 5,
+          total_content: 8
+        }
+      ]);
+      setAchievements([
+        {
+          event_name: 'Content completed',
+          content_title: 'HTML5 Fundamentals',
+          course_title: 'Complete Web Development Bootcamp',
+          timestamp: new Date().toISOString(),
+          score: null,
+          progress_percentage: 100
+        },
+        {
+          event_name: 'Quiz attempted',
+          content_title: 'CSS Quiz',
+          course_title: 'Complete Web Development Bootcamp',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          score: 85,
+          progress_percentage: 85
+        }
+      ]);
       setRecentActivity([
         {
           timestamp: new Date().toISOString(),
           event_name: 'Course viewed',
-          description: 'Viewed Introduction to Web Development',
+          description: 'Viewed Complete Web Development Bootcamp',
           component: 'Course'
         },
         {
           timestamp: new Date(Date.now() - 3600000).toISOString(),
           event_name: 'Quiz attempted',
-          description: 'Completed HTML Quiz with score 85%',
+          description: 'Completed CSS Quiz with score 85%',
           component: 'Quiz'
         }
       ]);
@@ -215,7 +249,7 @@ const Profile = ({ onNavigate }) => {
                   <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <BookOpen className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-2xl font-bold text-white">{userAnalytics?.courses_viewed || 0}</p>
+                  <p className="text-2xl font-bold text-white">{userAnalytics?.coursesViewed || 0}</p>
                   <p className="text-slate-400 text-sm">Courses Viewed</p>
                 </div>
               </div>
@@ -225,7 +259,7 @@ const Profile = ({ onNavigate }) => {
                   <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-2xl font-bold text-white">{userAnalytics?.content_completed || 0}</p>
+                  <p className="text-2xl font-bold text-white">{userAnalytics?.contentCompleted || 0}</p>
                   <p className="text-slate-400 text-sm">Content Completed</p>
                 </div>
               </div>
@@ -235,7 +269,7 @@ const Profile = ({ onNavigate }) => {
                   <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <HelpCircle className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-2xl font-bold text-white">{userAnalytics?.quizzes_taken || 0}</p>
+                  <p className="text-2xl font-bold text-white">{userAnalytics?.quizzesTaken || 0}</p>
                   <p className="text-slate-400 text-sm">Quizzes Taken</p>
                 </div>
               </div>
@@ -245,7 +279,7 @@ const Profile = ({ onNavigate }) => {
                   <div className="w-12 h-12 bg-amber-600 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <Target className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-2xl font-bold text-white">{userAnalytics?.average_quiz_score || 0}%</p>
+                  <p className="text-2xl font-bold text-white">{userAnalytics?.averageScore || 0}%</p>
                   <p className="text-slate-400 text-sm">Avg Quiz Score</p>
                 </div>
               </div>
@@ -274,7 +308,7 @@ const Profile = ({ onNavigate }) => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-slate-300">Time Spent Learning</span>
-                      <span className="text-white font-medium">{formatTime(userAnalytics?.total_time_spent || 0)}</span>
+                      <span className="text-white font-medium">{formatTime(userAnalytics?.totalTimeSpent || 0)}</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill" style={{ width: '40%' }}></div>
@@ -284,7 +318,7 @@ const Profile = ({ onNavigate }) => {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-slate-300">Activities Completed</span>
-                      <span className="text-white font-medium">{userAnalytics?.total_events || 0}</span>
+                      <span className="text-white font-medium">{userAnalytics?.totalEvents || 0}</span>
                     </div>
                     <div className="progress-bar">
                       <div className="progress-fill" style={{ width: '60%' }}></div>
@@ -330,12 +364,85 @@ const Profile = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Achievements */}
+            {/* Individual Course Progress */}
+            {userProgress.length > 0 && (
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    Course Progress
+                  </h3>
+                </div>
+                <div className="card-body">
+                  <div className="space-y-4">
+                    {userProgress.map((course, index) => (
+                      <div key={index} className="p-4 bg-slate-750 rounded-lg">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h4 className="text-white font-medium">{course.course_title}</h4>
+                            <p className="text-slate-400 text-sm">{course.completed_content} of {course.total_content} modules completed</p>
+                          </div>
+                          <span className="text-white font-bold">{course.progressPercentage}%</span>
+                        </div>
+                        <div className="progress-bar mb-3">
+                          <div className="progress-fill" style={{ width: `${course.progressPercentage}%` }}></div>
+                        </div>
+                        <div className="flex justify-between text-sm text-slate-400">
+                          <span>Time spent: {formatTime(course.timeSpentMinutes)}</span>
+                          <span>Last accessed: {course.last_accessed ? new Date(course.last_accessed).toLocaleDateString() : 'Never'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Real Achievements */}
+            {achievements.length > 0 && (
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Trophy className="w-5 h-5" />
+                    Recent Achievements
+                  </h3>
+                </div>
+                <div className="card-body">
+                  <div className="space-y-3">
+                    {achievements.slice(0, 8).map((achievement, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-slate-750 rounded-lg">
+                        <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                          {achievement.event_name === 'Content completed' ? (
+                            <CheckCircle className="w-5 h-5 text-white" />
+                          ) : achievement.event_name === 'Quiz attempted' ? (
+                            <Target className="w-5 h-5 text-white" />
+                          ) : (
+                            <BookOpen className="w-5 h-5 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-white font-medium">{achievement.event_name}</p>
+                          <p className="text-slate-400 text-sm">{achievement.content_title}</p>
+                          {achievement.score && (
+                            <p className="text-green-400 text-xs">Score: {achievement.score}%</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-slate-400 text-xs">{new Date(achievement.timestamp).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mock Achievements */}
             <div className="card">
               <div className="card-header">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Trophy className="w-5 h-5" />
-                  Achievements
+                  Available Achievements
                 </h3>
               </div>
               <div className="card-body">
