@@ -386,74 +386,104 @@ No prior programming experience required! This course is designed for complete b
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="mb-8">
-        <button 
-          onClick={() => onNavigate('dashboard')}
-          className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </button>
-        
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <header className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => onNavigate('dashboard')}
+                className="flex items-center text-blue-400 hover:text-blue-300"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </button>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Course Learning</h1>
+                <p className="text-slate-400 text-sm">Continue your learning journey</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => onNavigate('profile')}
+                className="btn btn-ghost"
+              >
+                Profile
+              </button>
+              <button
+                onClick={() => onNavigate('analytics')}
+                className="btn btn-ghost"
+              >
+                Analytics
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Course Info */}
+        <div className="card mb-8">
           <div className="flex items-center space-x-4 mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <BookOpen className="h-12 w-12 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-              <p className="text-gray-600">{course.description}</p>
-              <p className="text-sm text-gray-500">Instructor: {course.instructor}</p>
+              <h1 className="text-3xl font-bold text-white">{course.title}</h1>
+              <p className="text-slate-400">{course.description}</p>
+              <p className="text-sm text-slate-500">Instructor: {course.instructor}</p>
             </div>
           </div>
-        </div>
         
-        <div className="mt-4 flex items-center space-x-4">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 text-gray-500 mr-1" />
-            <span className="text-sm text-gray-600">{course.totalLessons} lessons</span>
-          </div>
-          <div className="flex items-center">
-            <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-sm text-gray-600">{course.completedLessons} completed</span>
-          </div>
-          {timeSpent > 0 && (
+                  <div className="mt-4 flex items-center space-x-4">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 text-blue-500 mr-1" />
-              <span className="text-sm text-gray-600">{Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}</span>
+              <Clock className="h-4 w-4 text-slate-400 mr-1" />
+              <span className="text-sm text-slate-400">{course.totalLessons} lessons</span>
             </div>
-          )}
-        </div>
-        
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm font-medium text-gray-700">{progress}%</span>
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-400 mr-1" />
+              <span className="text-sm text-slate-400">{course.completedLessons} completed</span>
+            </div>
+            {timeSpent > 0 && (
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 text-blue-400 mr-1" />
+                <span className="text-sm text-slate-400">{Math.floor(timeSpent / 60)}:{(timeSpent % 60).toString().padStart(2, '0')}</span>
+              </div>
+            )}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${progress}%` }}
-            ></div>
+          
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-slate-300">Progress</span>
+              <span className="text-sm font-medium text-slate-300">{progress}%</span>
+            </div>
+            <div className="w-full bg-slate-600 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Content List */}
         <div className="lg:col-span-1">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Course Content</h2>
+          <h2 className="text-xl font-bold text-white mb-4">Course Content</h2>
           <div className="space-y-2">
             {course.content.map((content) => (
               <div
                 key={content.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                   currentContent?.id === content.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                } ${content.completed ? 'bg-green-50 border-green-200' : ''}`}
+                    ? 'border-blue-500 bg-slate-700'
+                    : 'border-slate-600 hover:border-slate-500 bg-slate-750'
+                } ${content.completed ? 'bg-green-900 border-green-600' : ''}`}
                 onClick={() => {
                   setCurrentContent(content);
                   // Track content module view
@@ -464,23 +494,23 @@ No prior programming experience required! This course is designed for complete b
                   <div className="flex items-center space-x-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                       content.completed 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-gray-100 text-gray-600'
+                        ? 'bg-green-800 text-green-300' 
+                        : 'bg-slate-600 text-slate-300'
                     }`}>
                       {content.type === 'video' && <Video className="h-5 w-5" />}
                       {content.type === 'text' && <FileText className="h-5 w-5" />}
                       {content.type === 'quiz' && <HelpCircle className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{content.title}</h3>
-                      <p className="text-sm text-gray-600">{content.description}</p>
+                      <h3 className="font-semibold text-white">{content.title}</h3>
+                      <p className="text-sm text-slate-400">{content.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {content.completed && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5 text-green-400" />
                     )}
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-slate-500">
                       {content.type === 'video' && 'Video'}
                       {content.type === 'text' && 'Text'}
                       {content.type === 'quiz' && 'Quiz'}
@@ -494,8 +524,8 @@ No prior programming experience required! This course is designed for complete b
 
         {/* Content Viewer */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="card">
+            <h2 className="text-xl font-bold text-white mb-4">
               {currentContent?.title}
             </h2>
             
@@ -535,10 +565,10 @@ No prior programming experience required! This course is designed for complete b
                   </button>
                 </div>
                 {currentContent.completed && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="mt-4 p-3 bg-green-900 border border-green-600 rounded-lg">
                     <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="text-green-800 font-medium">
+                      <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+                      <span className="text-green-300 font-medium">
                         This content has been marked as complete!
                       </span>
                     </div>
@@ -621,10 +651,10 @@ No prior programming experience required! This course is designed for complete b
                 {!quizSubmitted ? (
                   <div className="space-y-6">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Quiz: {currentContent.title}</h3>
+                      <h3 className="text-lg font-semibold text-white">Quiz: {currentContent.title}</h3>
                       <button
                         onClick={() => setShowQuiz(false)}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-slate-400 hover:text-slate-300"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -646,7 +676,7 @@ No prior programming experience required! This course is designed for complete b
                                 onChange={() => handleQuizAnswer(question.id, optionIndex)}
                                 className="text-blue-600 focus:ring-blue-500"
                               />
-                              <span className="text-gray-700">{option}</span>
+                              <span className="text-slate-300">{option}</span>
                             </label>
                           ))}
                         </div>
@@ -704,6 +734,7 @@ No prior programming experience required! This course is designed for complete b
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 };

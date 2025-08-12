@@ -146,13 +146,59 @@ async function initDatabase() {
         )
       `);
 
-      // Insert sample data
-      insertSampleData()
-        .then(() => {
-          console.log('Database initialized with sample data');
-          resolve();
-        })
-        .catch(reject);
+                // Insert sample data
+          insertSampleData()
+            .then(() => {
+              console.log('Database initialized with sample data');
+              
+              // Add sample clickstream events for testing
+              const sampleEvents = [
+                {
+                  event_type: 'page_view',
+                  event_name: 'Page viewed',
+                  component: 'Navigation',
+                  description: 'User admin viewed the Admin Dashboard page',
+                  user_id: 1,
+                  timestamp: new Date().toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1'
+                },
+                {
+                  event_type: 'course_view',
+                  event_name: 'Course viewed',
+                  component: 'System',
+                  description: 'User ashwani viewed the Complete Web Development Bootcamp course',
+                  user_id: 3,
+                  timestamp: new Date(Date.now() - 3600000).toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1',
+                  course_title: 'Complete Web Development Bootcamp'
+                },
+                {
+                  event_type: 'content_view',
+                  event_name: 'Content viewed',
+                  component: 'Content',
+                  description: 'User ashwani viewed the HTML5 Fundamentals content',
+                  user_id: 3,
+                  timestamp: new Date(Date.now() - 7200000).toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1',
+                  content_title: 'HTML5 Fundamentals',
+                  course_title: 'Complete Web Development Bootcamp'
+                }
+              ];
+              
+              sampleEvents.forEach(event => {
+                db.run(`
+                  INSERT INTO clickstream_events 
+                  (event_type, event_name, component, description, user_id, timestamp, origin, ip_address, course_title, content_title)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [event.event_type, event.event_name, event.component, event.description, event.user_id, event.timestamp, event.origin, event.ip_address, event.course_title, event.content_title]);
+              });
+              
+              resolve();
+            })
+            .catch(reject);
     });
   });
 }
@@ -390,4 +436,4 @@ async function insertSampleData() {
   });
 }
 
-module.exports = { initDatabase, db }; # Force database reinit
+module.exports = { initDatabase, db }; 
