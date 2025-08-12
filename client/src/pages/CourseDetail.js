@@ -59,39 +59,68 @@ const CourseDetail = ({ onNavigate }) => {
         // Set mock data if API fails
         const mockCourse = {
           id: 1,
-          title: 'Introduction to Web Development',
-          description: 'Learn the fundamentals of web development including HTML, CSS, and JavaScript. This comprehensive course covers everything from basic markup to interactive web applications.',
+          title: 'Complete Web Development Bootcamp',
+          description: 'Master HTML, CSS, JavaScript, React, and Node.js. Build real-world projects and become a full-stack developer.',
           instructor: 'John Doe',
-          progress: 75,
+          progress: 25,
+          totalLessons: 8,
+          completedLessons: 2,
           content: [
             {
               id: 1,
-              title: 'Getting Started with HTML',
-              description: 'Learn the basics of HTML markup and document structure',
+              title: 'Welcome to Web Development Bootcamp',
+              description: 'Introduction to the course and learning objectives',
               type: 'text',
-              content: 'HTML (HyperText Markup Language) is the standard markup language for creating web pages...',
+              content: `Welcome to the Complete Web Development Bootcamp! This comprehensive course will take you from a complete beginner to a full-stack developer.
+
+What you will learn:
+• HTML5 structure and semantic elements
+• CSS3 styling, Flexbox, and Grid
+• JavaScript ES6+ fundamentals
+• React.js for frontend development
+• Node.js and Express for backend
+• Database integration with MongoDB
+• Deployment and hosting
+• Real-world project development
+
+Course Structure:
+This bootcamp is divided into 8 comprehensive modules:
+1. HTML & CSS Fundamentals
+2. JavaScript Basics
+3. Advanced JavaScript
+4. React.js Frontend
+5. Node.js Backend
+6. Database Integration
+7. Full-Stack Projects
+8. Deployment & Career Prep
+
+Prerequisites:
+No prior programming experience required! This course is designed for complete beginners. You just need:
+• A computer with internet access
+• Basic computer skills
+• Enthusiasm to learn!`,
               completed: true
             },
             {
               id: 2,
-              title: 'HTML Basics Video',
-              description: 'Watch this video to understand HTML fundamentals',
+              title: 'HTML5 Fundamentals',
+              description: 'Master HTML5 fundamentals including semantic elements, forms, and modern web standards',
               type: 'video',
               videoUrl: 'https://www.youtube.com/embed/UB1O30fR-EE',
               completed: false
             },
             {
               id: 3,
-              title: 'CSS Fundamentals',
-              description: 'Learn CSS styling and layout techniques',
+              title: 'CSS3 Styling & Layout',
+              description: 'Learn CSS3 styling, Flexbox, and Grid layout techniques',
               type: 'video',
               videoUrl: 'https://www.youtube.com/embed/1PnVor36_40',
               completed: false
             },
             {
               id: 4,
-              title: 'JavaScript Basics',
-              description: 'Introduction to JavaScript programming',
+              title: 'JavaScript ES6+ Basics',
+              description: 'Introduction to modern JavaScript programming',
               type: 'video',
               videoUrl: 'https://www.youtube.com/embed/W6NZfCO5SIk',
               completed: false
@@ -429,6 +458,54 @@ const CourseDetail = ({ onNavigate }) => {
               {currentContent?.title}
             </h2>
             
+            {currentContent?.type === 'text' && (
+              <div>
+                <div className="prose max-w-none mb-6">
+                  <div className="whitespace-pre-line text-gray-700 leading-relaxed">
+                    {currentContent.content}
+                  </div>
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => handleProgressUpdate(100)}
+                    className={`btn flex items-center ${
+                      currentContent.completed 
+                        ? 'btn-success bg-green-600 hover:bg-green-700' 
+                        : 'btn-primary'
+                    }`}
+                  >
+                    {currentContent.completed ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Marked as Complete
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Complete
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleProgressUpdate(0)}
+                    className="btn btn-outline"
+                  >
+                    Reset Progress
+                  </button>
+                </div>
+                {currentContent.completed && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                      <span className="text-green-800 font-medium">
+                        This content has been marked as complete!
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {currentContent?.type === 'video' && (
               <div>
                 <div className="aspect-video bg-gray-100 rounded-lg mb-4">

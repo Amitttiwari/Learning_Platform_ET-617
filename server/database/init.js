@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, 'learning_website.db');
+const dbPath = path.join(__dirname, 'learning_platform.db');
 const db = new sqlite3.Database(dbPath);
 
 async function initDatabase() {

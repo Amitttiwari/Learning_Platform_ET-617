@@ -79,8 +79,8 @@ const Dashboard = ({ onNavigate }) => {
         const mockActivities = [
           {
             id: 1,
-            type: 'course_viewed',
-            title: 'Introduction to Web Development',
+            type: 'page_view',
+            title: 'Complete Web Development Bootcamp Viewed',
             time: '2 hours ago',
             icon: Eye,
             color: 'text-blue-600',
@@ -88,8 +88,8 @@ const Dashboard = ({ onNavigate }) => {
           },
           {
             id: 2,
-            type: 'video_watched',
-            title: 'HTML Basics Video',
+            type: 'video_interaction',
+            title: 'HTML5 Fundamentals Video - Play',
             time: '1 hour ago',
             icon: Video,
             color: 'text-green-600',
@@ -329,28 +329,71 @@ const Dashboard = ({ onNavigate }) => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {user?.username || user?.firstName}!
-        </h1>
-        <p className="text-gray-600">
-          Continue your learning journey and track your progress
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-900">
+      {/* Header */}
+      <header className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Learning Dashboard</h1>
+                <p className="text-slate-400 text-sm">Track your progress and continue learning</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => onNavigate('profile')}
+                className="btn btn-ghost"
+              >
+                Profile
+              </button>
+              <button
+                onClick={() => onNavigate('analytics')}
+                className="btn btn-ghost"
+              >
+                Analytics
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('user');
+                  onNavigate('login');
+                }}
+                className="btn btn-danger"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Welcome back, {user?.username || user?.firstName}!
+          </h1>
+          <p className="text-slate-400">
+            Continue your learning journey and track your progress
+          </p>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-lg p-6">
+          <div key={index} className="card">
             <div className="flex items-center">
               <div className={`p-3 rounded-full ${stat.bgColor}`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-slate-400">{stat.title}</p>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
               </div>
             </div>
           </div>
@@ -359,26 +402,26 @@ const Dashboard = ({ onNavigate }) => {
 
       {/* Continue Learning */}
       {courses.length > 0 && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Continue Learning</h2>
+        <div className="card mb-8">
+          <h2 className="text-xl font-bold text-white mb-4">Continue Learning</h2>
           <div className="space-y-4">
             {courses.slice(0, 2).map((course) => (
-              <div key={course.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div key={course.id} className="flex items-center justify-between p-4 bg-slate-750 rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <BookOpen className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{course.title}</h3>
-                    <p className="text-sm text-gray-600">{course.instructor}</p>
+                    <h3 className="font-semibold text-white">{course.title}</h3>
+                    <p className="text-sm text-slate-400">{course.instructor}</p>
                     <div className="flex items-center mt-1">
-                      <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                      <div className="w-32 bg-slate-600 rounded-full h-2 mr-2">
                         <div 
                           className="bg-blue-600 h-2 rounded-full" 
                           style={{ width: `${course.progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-gray-600">{course.progress}%</span>
+                      <span className="text-sm text-slate-400">{course.progress}%</span>
                     </div>
                   </div>
                 </div>
@@ -395,17 +438,17 @@ const Dashboard = ({ onNavigate }) => {
       )}
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+      <div className="card mb-8">
+        <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
         <div className="space-y-4">
           {recentActivity.map((activity) => (
-            <div key={activity.id} className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg">
+            <div key={activity.id} className="flex items-center space-x-4 p-3 bg-slate-750 rounded-lg">
               <div className={`p-2 rounded-full ${activity.bgColor}`}>
                 <activity.icon className={`h-5 w-5 ${activity.color}`} />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">{activity.title}</p>
-                <p className="text-sm text-gray-600">{activity.time}</p>
+                <p className="font-medium text-white">{activity.title}</p>
+                <p className="text-sm text-slate-400">{activity.time}</p>
               </div>
             </div>
           ))}
@@ -413,24 +456,25 @@ const Dashboard = ({ onNavigate }) => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+      <div className="card">
+        <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickActions.map((action, index) => (
             <button
               key={index}
               onClick={() => handleQuickAction(action.action)}
-              className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+              className="p-4 bg-slate-750 rounded-lg hover:bg-slate-700 transition-colors"
             >
               <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
                 <action.icon className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
-              <p className="text-sm text-gray-600">{action.description}</p>
+              <h3 className="font-semibold text-white mb-1">{action.title}</h3>
+              <p className="text-sm text-slate-400">{action.description}</p>
             </button>
           ))}
         </div>
       </div>
+      </main>
     </div>
   );
 };
