@@ -17,6 +17,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Navbar from '../components/Navbar';
 
 const Dashboard = ({ onNavigate }) => {
   const { user } = useAuth();
@@ -385,61 +386,23 @@ const Dashboard = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Learning Dashboard</h1>
-                <p className="text-slate-400 text-sm">Track your progress and continue learning</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => onNavigate('profile')}
-                className="btn btn-ghost"
-              >
-                Profile
-              </button>
-              <button
-                onClick={() => onNavigate('analytics')}
-                className="btn btn-ghost"
-              >
-                Analytics
-              </button>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('user');
-                  onNavigate('login');
-                }}
-                className="btn btn-danger"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Navbar currentPage="dashboard" onNavigate={onNavigate} user={user} />
+      
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome back, {user?.username || user?.firstName}!
-          </h1>
-          <p className="text-slate-400">
-            Continue your learning journey and track your progress
-          </p>
-        </div>
+      <main className="pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Welcome back, {user?.username || user?.firstName}!
+            </h1>
+            <p className="text-slate-400">
+              Continue your learning journey and track your progress
+            </p>
+          </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div key={index} className="card">
             <div className="flex items-center">
@@ -526,9 +489,10 @@ const Dashboard = ({ onNavigate }) => {
               <h3 className="font-semibold text-white mb-1">{action.title}</h3>
               <p className="text-sm text-slate-400">{action.description}</p>
             </button>
-          ))}
+                    ))}
         </div>
       </div>
+        </div>
       </main>
     </div>
   );

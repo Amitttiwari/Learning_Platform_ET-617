@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-const Analytics = () => {
+const Analytics = ({ onNavigate }) => {
   const { trackButtonClick } = useAnalytics();
   const [loading, setLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -227,26 +227,59 @@ const Analytics = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Analytics</h1>
-            <p className="text-gray-600">Track your learning progress and interactions</p>
+      <header className="bg-slate-800 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Learning Analytics</h1>
+                <p className="text-slate-400 text-sm">Track your learning progress and interactions</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => onNavigate('dashboard')}
+                className="btn btn-ghost"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => onNavigate('profile')}
+                className="btn btn-ghost"
+              >
+                Profile
+              </button>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
-              <option value="90d">Last 90 days</option>
-            </select>
-            <button
-              onClick={handleExport}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Controls */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Learning Analytics</h1>
+              <p className="text-slate-400">Track your learning progress and interactions</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="border border-slate-600 bg-slate-700 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+              </select>
+              <button
+                onClick={handleExport}
               className="btn btn-primary flex items-center"
             >
               <Download className="h-4 w-4 mr-2" />
@@ -258,67 +291,67 @@ const Analytics = () => {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="card">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-blue-100">
-              <Activity className="h-6 w-6 text-blue-600" />
+            <div className="p-3 rounded-full bg-blue-600">
+              <Activity className="h-6 w-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Events</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.totalEvents || 0}</p>
+              <p className="text-sm font-medium text-slate-400">Total Events</p>
+              <p className="text-2xl font-bold text-white">{analyticsData?.summary?.totalEvents || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="card">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-green-100">
-              <Clock className="h-6 w-6 text-green-600" />
+            <div className="p-3 rounded-full bg-green-600">
+              <Clock className="h-6 w-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Hours Learned</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.totalTimeSpent || 0}</p>
+              <p className="text-sm font-medium text-slate-400">Hours Learned</p>
+              <p className="text-2xl font-bold text-white">{analyticsData?.summary?.totalTimeSpent || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="card">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="p-3 rounded-full bg-purple-600">
+              <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Average Score</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.averageScore || 0}%</p>
+              <p className="text-sm font-medium text-slate-400">Average Score</p>
+              <p className="text-2xl font-bold text-white">{analyticsData?.summary?.averageScore || 0}%</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="card">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-orange-100">
-              <Award className="h-6 w-6 text-orange-600" />
+            <div className="p-3 rounded-full bg-orange-600">
+              <Award className="h-6 w-6 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Courses Completed</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData?.summary?.coursesCompleted || 0}</p>
+              <p className="text-sm font-medium text-slate-400">Courses Completed</p>
+              <p className="text-2xl font-bold text-white">{analyticsData?.summary?.coursesCompleted || 0}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Event Types */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Event Types</h2>
+      <div className="card mb-8">
+        <h2 className="text-xl font-bold text-white mb-4">Event Types</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {eventTypes.map((eventType, index) => (
-            <div key={index} className="flex items-center p-4 border border-gray-200 rounded-lg">
-              <div className={`p-2 rounded-full bg-gray-100`}>
-                <eventType.icon className={`h-5 w-5 ${eventType.color}`} />
+            <div key={index} className="flex items-center p-4 border border-slate-600 rounded-lg bg-slate-750">
+              <div className={`p-2 rounded-full bg-slate-600`}>
+                <eventType.icon className={`h-5 w-5 text-white`} />
               </div>
               <div className="ml-3">
-                <p className="font-medium text-gray-900 capitalize">{eventType.type.replace('_', ' ')}</p>
-                <p className="text-sm text-gray-600">{eventType.count} events</p>
+                <p className="font-medium text-white capitalize">{eventType.type.replace('_', ' ')}</p>
+                <p className="text-sm text-slate-400">{eventType.count} events</p>
               </div>
             </div>
           ))}
@@ -326,33 +359,33 @@ const Analytics = () => {
       </div>
 
       {/* Clickstream Data */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Clickstream Data</h2>
+      <div className="card">
+        <h2 className="text-xl font-bold text-white mb-4">Recent Clickstream Data</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-600">
+            <thead className="bg-slate-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Context</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Timestamp</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Event Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Context</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Details</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-slate-750 divide-y divide-slate-600">
               {clickstreamData.slice(0, 10).map((event, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {new Date(event.timestamp).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getEventColor(event.event_type).replace('text-', 'bg-').replace('-600', '-100')} ${getEventColor(event.event_type)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize bg-slate-600 text-white`}>
                       {event.event_type.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
                     {event.context || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                     {event.content_title || event.action || '-'}
                     {event.score && ` (Score: ${event.score}%)`}
                     {event.progress_percentage && ` (Progress: ${event.progress_percentage}%)`}
@@ -363,6 +396,7 @@ const Analytics = () => {
           </table>
         </div>
       </div>
+      </main>
     </div>
   );
 };

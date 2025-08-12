@@ -161,7 +161,9 @@ async function initDatabase() {
                   user_id: 1,
                   timestamp: new Date().toISOString(),
                   origin: 'web',
-                  ip_address: '127.0.0.1'
+                  ip_address: '127.0.0.1',
+                  event_context: 'Admin Dashboard',
+                  course_title: 'Admin Panel'
                 },
                 {
                   event_type: 'course_view',
@@ -172,7 +174,8 @@ async function initDatabase() {
                   timestamp: new Date(Date.now() - 3600000).toISOString(),
                   origin: 'web',
                   ip_address: '127.0.0.1',
-                  course_title: 'Complete Web Development Bootcamp'
+                  course_title: 'Complete Web Development Bootcamp',
+                  event_context: 'Course Catalog'
                 },
                 {
                   event_type: 'content_view',
@@ -184,16 +187,74 @@ async function initDatabase() {
                   origin: 'web',
                   ip_address: '127.0.0.1',
                   content_title: 'HTML5 Fundamentals',
-                  course_title: 'Complete Web Development Bootcamp'
+                  course_title: 'Complete Web Development Bootcamp',
+                  event_context: 'Learning Module'
+                },
+                {
+                  event_type: 'video_interaction',
+                  event_name: 'Video play',
+                  component: 'Video Player',
+                  description: 'User ashwani started playing HTML5 Fundamentals video',
+                  user_id: 3,
+                  timestamp: new Date(Date.now() - 10800000).toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1',
+                  content_title: 'HTML5 Fundamentals',
+                  course_title: 'Complete Web Development Bootcamp',
+                  event_context: 'Video Learning',
+                  action: 'play'
+                },
+                {
+                  event_type: 'quiz_completed',
+                  event_name: 'Quiz attempted',
+                  component: 'Quiz System',
+                  description: 'User ashwani completed HTML Quiz with score 85%',
+                  user_id: 3,
+                  timestamp: new Date(Date.now() - 14400000).toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1',
+                  content_title: 'HTML Quiz',
+                  course_title: 'Complete Web Development Bootcamp',
+                  event_context: 'Assessment',
+                  score: 85
+                },
+                {
+                  event_type: 'progress_update',
+                  event_name: 'Content completed',
+                  component: 'Progress Tracker',
+                  description: 'User ashwani completed HTML5 Fundamentals module',
+                  user_id: 3,
+                  timestamp: new Date(Date.now() - 18000000).toISOString(),
+                  origin: 'web',
+                  ip_address: '127.0.0.1',
+                  content_title: 'HTML5 Fundamentals',
+                  course_title: 'Complete Web Development Bootcamp',
+                  event_context: 'Progress Update',
+                  progress_percentage: 100
                 }
               ];
               
               sampleEvents.forEach(event => {
                 db.run(`
                   INSERT INTO clickstream_events 
-                  (event_type, event_name, component, description, user_id, timestamp, origin, ip_address, course_title, content_title)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `, [event.event_type, event.event_name, event.component, event.description, event.user_id, event.timestamp, event.origin, event.ip_address, event.course_title, event.content_title]);
+                  (event_type, event_name, component, description, user_id, timestamp, origin, ip_address, course_title, content_title, event_context, action, score, progress_percentage)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                  event.event_type, 
+                  event.event_name, 
+                  event.component, 
+                  event.description, 
+                  event.user_id, 
+                  event.timestamp, 
+                  event.origin, 
+                  event.ip_address, 
+                  event.course_title, 
+                  event.content_title,
+                  event.event_context,
+                  event.action,
+                  event.score,
+                  event.progress_percentage
+                ]);
               });
               
               resolve();
