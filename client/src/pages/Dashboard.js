@@ -49,21 +49,30 @@ const Dashboard = ({ onNavigate }) => {
         setCourses([
           {
             id: 1,
-            title: 'Introduction to Web Development',
-            description: 'Learn the basics of HTML, CSS, and JavaScript',
+            title: 'Complete Web Development Bootcamp',
+            description: 'Master HTML, CSS, JavaScript, React, and Node.js. Build real-world projects and become a full-stack developer.',
             instructor: 'John Doe',
-            progress: 75,
-            totalLessons: 12,
-            completedLessons: 9
+            progress: 25,
+            totalLessons: 8,
+            completedLessons: 2
           },
           {
             id: 2,
-            title: 'Advanced JavaScript',
-            description: 'Master JavaScript programming concepts',
+            title: 'Data Science Fundamentals',
+            description: 'Learn Python, statistics, machine learning, and data visualization. Start your career in data science.',
             instructor: 'Jane Smith',
-            progress: 45,
-            totalLessons: 15,
-            completedLessons: 7
+            progress: 0,
+            totalLessons: 10,
+            completedLessons: 0
+          },
+          {
+            id: 3,
+            title: 'Mobile App Development with React Native',
+            description: 'Build cross-platform mobile apps using React Native. Learn to create apps for iOS and Android.',
+            instructor: 'Mike Johnson',
+            progress: 0,
+            totalLessons: 12,
+            completedLessons: 0
           }
         ]);
         setAnalytics({
@@ -83,8 +92,8 @@ const Dashboard = ({ onNavigate }) => {
             title: 'Complete Web Development Bootcamp Viewed',
             time: '2 hours ago',
             icon: Eye,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-100'
+            color: 'text-blue-400',
+            bgColor: 'bg-blue-900'
           },
           {
             id: 2,
@@ -92,8 +101,8 @@ const Dashboard = ({ onNavigate }) => {
             title: 'HTML5 Fundamentals Video - Play',
             time: '1 hour ago',
             icon: Video,
-            color: 'text-green-600',
-            bgColor: 'bg-green-100'
+            color: 'text-green-400',
+            bgColor: 'bg-green-900'
           },
           {
             id: 3,
@@ -101,8 +110,8 @@ const Dashboard = ({ onNavigate }) => {
             title: 'HTML Quiz - Score: 85%',
             time: '30 minutes ago',
             icon: HelpCircle,
-            color: 'text-purple-600',
-            bgColor: 'bg-purple-100'
+            color: 'text-purple-400',
+            bgColor: 'bg-purple-900'
           },
           {
             id: 4,
@@ -110,8 +119,8 @@ const Dashboard = ({ onNavigate }) => {
             title: 'CSS Fundamentals - 75% Complete',
             time: '15 minutes ago',
             icon: CheckCircle,
-            color: 'text-orange-600',
-            bgColor: 'bg-orange-100'
+            color: 'text-orange-400',
+            bgColor: 'bg-orange-900'
           },
           {
             id: 5,
@@ -119,8 +128,8 @@ const Dashboard = ({ onNavigate }) => {
             title: 'Analytics Dashboard',
             time: '5 minutes ago',
             icon: BarChart3,
-            color: 'text-indigo-600',
-            bgColor: 'bg-indigo-100'
+            color: 'text-indigo-400',
+            bgColor: 'bg-indigo-900'
           }
         ];
         setRecentActivity(mockActivities);
@@ -136,6 +145,39 @@ const Dashboard = ({ onNavigate }) => {
     const activities = [];
     const now = new Date();
     
+          if (!events || events.length === 0) {
+        // Return mock activities if no events
+        return [
+          {
+            id: 1,
+            type: 'page_view',
+            title: 'Complete Web Development Bootcamp Viewed',
+            time: '2 hours ago',
+            icon: Eye,
+            color: 'text-blue-400',
+            bgColor: 'bg-blue-900'
+          },
+          {
+            id: 2,
+            type: 'video_interaction',
+            title: 'HTML5 Fundamentals Video - Play',
+            time: '1 hour ago',
+            icon: Video,
+            color: 'text-green-400',
+            bgColor: 'bg-green-900'
+          },
+          {
+            id: 3,
+            type: 'quiz_completed',
+            title: 'HTML Quiz - Score: 85%',
+            time: '30 minutes ago',
+            icon: HelpCircle,
+            color: 'text-purple-400',
+            bgColor: 'bg-purple-900'
+          }
+        ];
+      }
+    
     events.slice(0, 10).forEach((event, index) => {
       const eventTime = new Date(event.timestamp);
       const timeDiff = Math.floor((now - eventTime) / (1000 * 60)); // minutes ago
@@ -148,12 +190,12 @@ const Dashboard = ({ onNavigate }) => {
 
       let activity = {
         id: index + 1,
-        type: event.event_type,
+        type: event.event_type || event.event_name || 'activity',
         title: getActivityTitle(event),
         time: timeAgo,
-        icon: getActivityIcon(event.event_type),
-        color: getActivityColor(event.event_type),
-        bgColor: getActivityBgColor(event.event_type)
+        icon: getActivityIcon(event.event_type || event.event_name),
+        color: getActivityColor(event.event_type || event.event_name),
+        bgColor: getActivityBgColor(event.event_type || event.event_name)
       };
       
       activities.push(activity);
@@ -163,23 +205,36 @@ const Dashboard = ({ onNavigate }) => {
   };
 
   const getActivityTitle = (event) => {
-    switch (event.event_type) {
+    const eventType = event.event_type || event.event_name;
+    
+    switch (eventType) {
       case 'page_view':
-        return `${event.context || 'Page'} Viewed`;
+      case 'Page viewed':
+        return `${event.context || event.description || 'Page'} Viewed`;
       case 'content_view':
+      case 'Content viewed':
         return `${event.content_title || 'Content'} Viewed`;
       case 'video_interaction':
+      case 'Video play':
+      case 'Video pause':
         return `${event.content_title || 'Video'} - ${event.action || 'Interaction'}`;
       case 'quiz_completed':
+      case 'Quiz attempted':
         return `Quiz Completed - Score: ${event.score || 'N/A'}%`;
       case 'progress_update':
+      case 'Content completed':
         return `${event.content_title || 'Content'} - ${event.progress_percentage || 0}% Complete`;
       case 'button_click':
+      case 'Button clicked':
         return `${event.button_name || 'Button'} Clicked`;
       case 'form_submission':
+      case 'Form submitted':
         return `${event.form_name || 'Form'} Submitted`;
+      case 'course_view':
+      case 'Course viewed':
+        return `${event.course_title || 'Course'} Viewed`;
       default:
-        return event.event_type || 'Activity';
+        return event.description || event.event_type || event.event_name || 'Activity';
     }
   };
 

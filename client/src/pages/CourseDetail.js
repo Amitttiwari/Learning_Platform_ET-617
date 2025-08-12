@@ -163,6 +163,47 @@ No prior programming experience required! This course is designed for complete b
                   question: 'Which CSS property controls the text size?',
                   options: ['font-size', 'text-size', 'font-style'],
                   correctAnswer: 0
+                },
+                {
+                  id: 3,
+                  question: 'How do you add a background color for all <h1> elements?',
+                  options: ['h1 {background-color:#B2D6FF}', 'h1.all {background-color:#B2D6FF}', 'all.h1 {background-color:#B2D6FF}'],
+                  correctAnswer: 0
+                }
+              ],
+              completed: false
+            },
+            {
+              id: 7,
+              title: 'JavaScript Fundamentals',
+              description: 'Learn JavaScript basics and programming concepts',
+              type: 'video',
+              videoUrl: 'https://www.youtube.com/embed/W6NZfCO5SIk',
+              completed: false
+            },
+            {
+              id: 8,
+              title: 'JavaScript Quiz',
+              description: 'Test your JavaScript knowledge',
+              type: 'quiz',
+              questions: [
+                {
+                  id: 1,
+                  question: 'Which of the following is a JavaScript data type?',
+                  options: ['String', 'Integer', 'Float', 'All of the above'],
+                  correctAnswer: 3
+                },
+                {
+                  id: 2,
+                  question: 'How do you declare a variable in JavaScript?',
+                  options: ['var x = 5;', 'let x = 5;', 'const x = 5;', 'All of the above'],
+                  correctAnswer: 3
+                },
+                {
+                  id: 3,
+                  question: 'What is the correct way to write a JavaScript array?',
+                  options: ['var colors = (1:"red", 2:"green", 3:"blue")', 'var colors = "red", "green", "blue"', 'var colors = ["red", "green", "blue"]'],
+                  correctAnswer: 2
                 }
               ],
               completed: false
@@ -461,7 +502,7 @@ No prior programming experience required! This course is designed for complete b
             {currentContent?.type === 'text' && (
               <div>
                 <div className="prose max-w-none mb-6">
-                  <div className="whitespace-pre-line text-gray-700 leading-relaxed">
+                  <div className="whitespace-pre-line text-white leading-relaxed">
                     {currentContent.content}
                   </div>
                 </div>
@@ -563,9 +604,9 @@ No prior programming experience required! This course is designed for complete b
 
             {currentContent?.type === 'quiz' && !showQuiz && (
               <div className="text-center py-8">
-                <HelpCircle className="h-16 w-16 text-purple-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Quiz: {currentContent.title}</h3>
-                <p className="text-gray-600 mb-4">Test your knowledge with interactive questions</p>
+                <HelpCircle className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-white mb-2">Quiz: {currentContent.title}</h3>
+                <p className="text-slate-400 mb-4">Test your knowledge with interactive questions</p>
                 <button 
                   onClick={handleQuizStart}
                   className="btn btn-primary"
@@ -590,8 +631,8 @@ No prior programming experience required! This course is designed for complete b
                     </div>
                     
                     {quizQuestions.map((question, index) => (
-                      <div key={question.id} className="border border-gray-200 rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-3">
+                      <div key={question.id} className="border border-slate-600 rounded-lg p-4 bg-slate-750">
+                        <h4 className="font-medium text-white mb-3">
                           {index + 1}. {question.question}
                         </h4>
                         <div className="space-y-2">
