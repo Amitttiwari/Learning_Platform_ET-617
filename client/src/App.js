@@ -55,6 +55,7 @@ const AppContent = () => {
       case 'analytics':
         return isAuthenticated ? <Analytics onNavigate={onNavigate} /> : <Login onNavigate={onNavigate} />;
       case 'course':
+      case 'course-detail':
         return isAuthenticated ? <CourseDetail onNavigate={onNavigate} /> : <Login onNavigate={onNavigate} />;
       default:
         return <Home onNavigate={onNavigate} />;

@@ -201,33 +201,32 @@ async function insertSampleData() {
           
           const learnerId = this.lastID || 3;
         
-          // Create sample course
+                    // Create sample course
           db.run(`
             INSERT OR IGNORE INTO courses (id, title, description, instructor_id, category, difficulty_level, is_published)
-            VALUES (1, 'Introduction to Web Development', 'Learn the basics of HTML, CSS, and JavaScript', ?, 'Programming', 'beginner', 1)
+            VALUES (1, 'Complete Web Development Bootcamp', 'Master HTML, CSS, JavaScript, React, and Node.js. Build real-world projects and become a full-stack developer.', ?, 'Programming', 'beginner', 1)
           `, [instructorId], function(err) {
-            if (err) {
-              console.error('Error inserting course:', err);
-              reject(err);
-              return;
-            }
           
             // Create sample content
             const sampleContent = [
               {
                 course_id: 1,
-                title: 'Welcome to the Course',
+                title: 'Welcome to Web Development Bootcamp',
                 content_type: 'text',
                 content_data: JSON.stringify({
-                  text: 'Welcome to Introduction to Web Development! In this course, you will learn the fundamentals of creating websites using HTML, CSS, and JavaScript. This course is designed for complete beginners who want to start their journey in web development.',
+                  text: 'Welcome to the Complete Web Development Bootcamp! This comprehensive course will take you from a complete beginner to a full-stack developer. You will learn HTML, CSS, JavaScript, React, and Node.js while building real-world projects.',
                   sections: [
                     {
                       title: 'What you will learn',
-                      content: '• HTML structure and elements\n• CSS styling and layout\n• JavaScript basics and interactivity\n• Responsive design principles\n• Best practices for web development'
+                      content: '• HTML5 structure and semantic elements\n• CSS3 styling, Flexbox, and Grid\n• JavaScript ES6+ fundamentals\n• React.js for frontend development\n• Node.js and Express for backend\n• Database integration with MongoDB\n• Deployment and hosting\n• Real-world project development'
                     },
                     {
                       title: 'Course Structure',
-                      content: 'The course is divided into 5 modules, each focusing on different aspects of web development. You can progress at your own pace and take quizzes to test your knowledge.'
+                      content: 'This bootcamp is divided into 8 comprehensive modules:\n1. HTML & CSS Fundamentals\n2. JavaScript Basics\n3. Advanced JavaScript\n4. React.js Frontend\n5. Node.js Backend\n6. Database Integration\n7. Full-Stack Projects\n8. Deployment & Career Prep'
+                    },
+                    {
+                      title: 'Prerequisites',
+                      content: 'No prior programming experience required! This course is designed for complete beginners. You just need:\n• A computer with internet access\n• Basic computer skills\n• Enthusiasm to learn!'
                     }
                   ]
                 }),
@@ -235,12 +234,13 @@ async function insertSampleData() {
               },
               {
                 course_id: 1,
-                title: 'HTML Basics',
+                title: 'HTML5 Fundamentals',
                 content_type: 'video',
                 video_url: 'https://www.youtube.com/embed/UB1O30fR-EE',
                 content_data: JSON.stringify({
-                  description: 'Learn the fundamentals of HTML, including tags, elements, and document structure.',
-                  duration: '15 minutes'
+                  description: 'Master HTML5 fundamentals including semantic elements, forms, and modern web standards. Learn to create well-structured, accessible web pages.',
+                  duration: '25 minutes',
+                  topics: ['HTML5 semantic elements', 'Forms and validation', 'Accessibility best practices', 'SEO optimization']
                 }),
                 order_index: 2
               },
