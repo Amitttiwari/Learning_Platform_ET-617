@@ -81,10 +81,14 @@ const AdminDashboard = ({ onNavigate }) => {
     try {
       trackButtonClick('Export All Analytics', 'Admin Dashboard');
       
+      console.log('Exporting data from:', `${API_URL}/api/analytics/admin/export-all`);
+      
       const response = await axios.get(`${API_URL}/api/analytics/admin/export-all`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         responseType: 'blob'
       });
+
+      console.log('Export response received:', response.status, response.data);
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -93,8 +97,12 @@ const AdminDashboard = ({ onNavigate }) => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      console.log('CSV download initiated successfully');
     } catch (error) {
       console.error('Error exporting data:', error);
+      alert('Failed to export data. Please try again.');
     }
   };
 

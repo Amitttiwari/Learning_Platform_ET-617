@@ -106,6 +106,83 @@ No prior programming experience required! This course is designed for complete b
               id: 2,
               title: 'HTML5 Fundamentals',
               description: 'Master HTML5 fundamentals including semantic elements, forms, and modern web standards',
+              type: 'text',
+              content: `HTML5 Fundamentals
+
+HTML (HyperText Markup Language) is the standard markup language for creating web pages. In this module, you'll learn the fundamentals of HTML5.
+
+Key Topics:
+• HTML Document Structure
+• Semantic Elements
+• Text Formatting
+• Links and Navigation
+• Images and Media
+• Forms and Input Elements
+• Tables and Lists
+• HTML5 New Features
+
+Document Structure:
+Every HTML document has a basic structure:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+</head>
+<body>
+    <h1>Main Heading</h1>
+    <p>This is a paragraph.</p>
+</body>
+</html>
+
+Semantic Elements:
+HTML5 introduced semantic elements that clearly describe their meaning:
+• <header> - Defines a header for a document or section
+• <nav> - Defines navigation links
+• <main> - Specifies the main content of a document
+• <section> - Defines a section in a document
+• <article> - Defines an article
+• <aside> - Defines content aside from the page content
+• <footer> - Defines a footer for a document or section
+
+Text Elements:
+• <h1> to <h6> - Headings
+• <p> - Paragraphs
+• <strong> - Important text
+• <em> - Emphasized text
+• <mark> - Marked/highlighted text
+• <small> - Smaller text
+• <del> - Deleted text
+• <ins> - Inserted text
+
+Links and Navigation:
+<a href="https://example.com">Link text</a>
+<a href="#section-id">Internal link</a>
+
+Images:
+<img src="image.jpg" alt="Description" width="300" height="200">
+
+Forms:
+<form action="/submit" method="post">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <button type="submit">Submit</button>
+</form>
+
+Practice Exercise:
+Create a simple HTML page with:
+1. A header with navigation
+2. A main section with headings and paragraphs
+3. An image
+4. A contact form
+5. A footer
+
+This will give you hands-on experience with HTML5 fundamentals!`,
+              completed: false
+            },
+            {
+              id: 2,
+              title: 'HTML5 Fundamentals',
+              description: 'Master HTML5 fundamentals including semantic elements, forms, and modern web standards',
               type: 'video',
               videoUrl: 'https://www.youtube.com/embed/UB1O30fR-EE',
               completed: false
@@ -214,6 +291,7 @@ No prior programming experience required! This course is designed for complete b
         setCourse(mockCourse);
         trackCourseView(courseId, mockCourse.title, 'Course Detail Page');
         if (mockCourse.content && mockCourse.content.length > 0) {
+          console.log('Setting current content:', mockCourse.content[0]);
           setCurrentContent(mockCourse.content[0]);
         }
       } finally {

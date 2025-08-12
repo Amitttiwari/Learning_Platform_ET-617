@@ -54,7 +54,27 @@ export const AnalyticsProvider = ({ children }) => {
       ip_address: getSimulatedIP(),
       user_agent: navigator.userAgent,
       origin: 'web',
-      ...eventData
+      event_type: eventData.event_context || eventData.event_type || 'unknown',
+      event_name: eventData.event_name || 'Unknown Event',
+      component: eventData.component || 'System',
+      description: eventData.description || '',
+      course_title: eventData.course_title || '',
+      content_title: eventData.content_title || '',
+      content_type: eventData.content_type || '',
+      action: eventData.action || '',
+      score: eventData.score || null,
+      progress_percentage: eventData.progress_percentage || null,
+      time_spent: eventData.time_spent || 0,
+      button_name: eventData.button_name || '',
+      form_name: eventData.form_name || '',
+      success: eventData.success || false,
+      navigation_type: eventData.navigation_type || '',
+      from_page: eventData.from_page || '',
+      to_page: eventData.to_page || '',
+      search_term: eventData.search_term || '',
+      search_results: eventData.search_results || 0,
+      error_type: eventData.error_type || '',
+      error_message: eventData.error_message || ''
     };
 
     console.log('📊 Analytics Event:', baseEvent);
