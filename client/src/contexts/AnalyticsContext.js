@@ -259,6 +259,8 @@ export const AnalyticsProvider = ({ children }) => {
       } catch (error) {
         if (error.response?.status === 404 || error.response?.status === 429) {
           console.log('⚠️ Analytics event skipped (rate limited or endpoint not found)');
+        } else if (error.response?.status === 500) {
+          console.log('⚠️ Analytics event skipped (server error - database issue)');
         } else {
           console.error('❌ Failed to send analytics event:', error);
         }
