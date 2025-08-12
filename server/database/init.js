@@ -105,6 +105,7 @@ async function initDatabase() {
           content_type TEXT,
           course_title TEXT,
           course_context TEXT,
+          event_context TEXT,
           action TEXT,
           score REAL,
           progress_percentage REAL,

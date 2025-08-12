@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
 const analyticsRoutes = require('./routes/analytics');
 const { initDatabase } = require('./database/init');
+const { migrateDatabase } = require('./database/migrate');
 const db = require('./database/db'); // Added for the new test endpoint
 
 const app = express();
@@ -115,6 +116,10 @@ async function startServer() {
   try {
     await initDatabase();
     console.log('Database initialized successfully');
+    
+    // Run database migration
+    await migrateDatabase();
+    console.log('Database migration completed');
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

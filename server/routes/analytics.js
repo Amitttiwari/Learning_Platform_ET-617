@@ -360,6 +360,7 @@ router.post('/events', async (req, res) => {
       content_type: content_type || '',
       course_title: course_title || '',
       course_context: course_context || '',
+      event_context: req.body.event_context || '',
       action: action || '',
       score: score || null,
       progress_percentage: progress_percentage || null,
@@ -384,16 +385,16 @@ router.post('/events', async (req, res) => {
     const sql = `
       INSERT INTO clickstream_events (
         event_type, event_name, component, description, page_url, 
-        course_id, content_id, content_title, content_type, course_title, course_context,
+        course_id, content_id, content_title, content_type, course_title, course_context, event_context,
         action, score, progress_percentage, time_spent, button_name, form_name, 
         success, event_data, navigation_type, from_page, to_page, search_term, 
         search_results, error_type, error_message, user_agent, origin, timestamp, user_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
       event.event_type, event.event_name, event.component, event.description, event.page_url,
-      event.course_id, event.content_id, event.content_title, event.content_type, event.course_title, event.course_context,
+      event.course_id, event.content_id, event.content_title, event.content_type, event.course_title, event.course_context, event.event_context,
       event.action, event.score, event.progress_percentage, event.time_spent, event.button_name, event.form_name,
       event.success, event.event_data, event.navigation_type, event.from_page, event.to_page, event.search_term,
       event.search_results, event.error_type, event.error_message, event.user_agent, event.origin, event.timestamp, event.user_id
