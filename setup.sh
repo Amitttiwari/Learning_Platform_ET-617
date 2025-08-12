@@ -1,52 +1,85 @@
 #!/bin/bash
 
-echo "🚀 Setting up Learning Platform with Analytics Tracking"
-echo "=================================================="
+echo "🎓 Learning Platform Setup Script"
+echo "=================================="
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not installed. Please install Node.js 16+ first."
+    echo "❌ Node.js is not installed. Please install Node.js v16 or higher."
     exit 1
 fi
 
 # Check Node.js version
 NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
 if [ "$NODE_VERSION" -lt 16 ]; then
-    echo "❌ Node.js version 16+ is required. Current version: $(node -v)"
+    echo "❌ Node.js version 16 or higher is required. Current version: $(node -v)"
     exit 1
 fi
 
 echo "✅ Node.js version: $(node -v)"
 
-# Install dependencies
-echo "📦 Installing dependencies..."
-npm run install:all
-
-# Create environment file
-echo "🔧 Setting up environment variables..."
-if [ ! -f "server/.env" ]; then
-    cp server/env.example server/.env
-    echo "✅ Created server/.env file"
-else
-    echo "⚠️  server/.env already exists"
+# Check if npm is installed
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm is not installed. Please install npm."
+    exit 1
 fi
 
-# Initialize database
-echo "🗄️  Initializing database..."
-cd server && npm run init-db && cd ..
+echo "✅ npm version: $(npm -v)"
+
+# Install backend dependencies
+echo ""
+echo "📦 Installing backend dependencies..."
+cd server
+npm install
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to install backend dependencies"
+    exit 1
+fi
+
+# Create .env file if it doesn't exist
+if [ ! -f .env ]; then
+    echo "📝 Creating .env file..."
+    cat > .env << EOF
+PORT=5001
+JWT_SECRET=your_jwt_secret_here_change_this_in_production
+NODE_ENV=development
+EOF
+    echo "✅ Created .env file"
+else
+    echo "✅ .env file already exists"
+fi
+
+cd ..
+
+# Install frontend dependencies
+echo ""
+echo "📦 Installing frontend dependencies..."
+cd client
+npm install
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to install frontend dependencies"
+    exit 1
+fi
+
+cd ..
 
 echo ""
-echo "🎉 Setup complete!"
+echo "🎉 Setup completed successfully!"
 echo ""
-echo "To start the development servers:"
-echo "  npm run dev"
+echo "📋 Next steps:"
+echo "1. Start the backend server:"
+echo "   cd server && npm start"
 echo ""
-echo "Access the application:"
-echo "  Frontend: http://localhost:3000"
-echo "  Backend: http://localhost:5000"
+echo "2. Start the frontend development server:"
+echo "   cd client && npm start"
 echo ""
-echo "Sample login credentials:"
-echo "  Username: instructor"
-echo "  Password: instructor123"
+echo "3. Access the application:"
+echo "   Frontend: http://localhost:3000"
+echo "   Backend API: http://localhost:5001"
 echo ""
-echo "Happy learning! 📚" 
+echo "🔑 Default login credentials:"
+echo "   Admin: admin / admin123"
+echo "   Instructor: instructor / instructor123"
+echo "   Learner: ashwani / learner123"
+echo ""
+echo "📚 For more information, see the README.md file" 

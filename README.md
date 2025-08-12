@@ -1,144 +1,200 @@
-# ET617 - Interactive Learning Platform
+# 🎓 Learning Platform - Interactive Web-Based Learning System
 
-A comprehensive web-based learning system with clickstream analytics tracking.
+A comprehensive web-based learning platform with user authentication, interactive content (text, video, quizzes), detailed clickstream analytics, and real-time progress tracking.
+
+## 🌟 Features
+
+### 👤 User Management
+- **User Registration & Authentication** with JWT tokens
+- **Role-based Access Control** (Admin, Instructor, Learner)
+- **Session Management** with persistent login
+- **User Profiles** with learning statistics
+
+### 📚 Interactive Learning Content
+- **Multi-format Content**: Text, Video, and Interactive Quizzes
+- **Progress Tracking**: Mark as complete/unread functionality
+- **Real-time Learning Analytics**: Time spent, completion rates
+- **Course Management**: Multiple courses with structured content
+
+### 📊 Advanced Analytics & Clickstream Tracking
+- **Comprehensive Event Tracking**: Page views, content interactions, quiz attempts
+- **Real-time Analytics Dashboard**: Learning progress, time spent, scores
+- **Admin Analytics**: Complete user activity overview
+- **CSV Export**: Download detailed analytics data
+- **Clickstream Data**: Detailed user interaction logs
+
+### 🎨 Modern UI/UX
+- **Dark Theme**: Modern, eye-friendly interface
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Intuitive Navigation**: Consistent navbar across all pages
+- **Interactive Elements**: Hover effects, loading states, feedback
 
 ## 🚀 Live Demo
-- **Frontend:** https://ashwaniiitbb.github.io/et617
-- **Backend:** https://learning-platform-backend-knkr.onrender.com
 
-## ✨ Features
+- **Frontend**: [Netlify Deployment](https://loquacious-sawine-ecfc59.netlify.app)
+- **Backend API**: [Render Deployment](https://learning-platform-backend-knkr.onrender.com)
 
-### 🎓 Learning Features
-- **User Registration & Authentication** - Secure JWT-based login system
-- **Interactive Course Content** - Text, video, and quiz modules
-- **Progress Tracking** - Mark and track learning progress
-- **Quiz System** - Multiple choice questions with scoring
-- **Responsive Design** - Works on desktop and mobile
-
-### 📊 Analytics & Tracking
-- **Clickstream Analytics** - Track all user interactions
-- **Event Tracking** - Page views, content interactions, video actions
-- **Quiz Performance** - Track quiz attempts and scores
-- **Learning Progress** - Monitor user progress and time spent
-- **CSV Export** - Download analytics data for analysis
-
-### 🛠 Technical Features
-- **Modern Tech Stack** - React 18, Node.js, Express, SQLite
-- **Real-time Tracking** - Live analytics updates
-- **Secure Authentication** - JWT tokens with bcrypt password hashing
-- **Database Analytics** - Comprehensive event logging
-- **API Documentation** - RESTful API endpoints
-
-## 🏗 Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** - Modern UI framework
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first styling
+- **React.js** - Modern UI framework
+- **Tailwind CSS** - Utility-first CSS framework
 - **Lucide React** - Beautiful icons
-- **React Hook Form** - Form handling
-- **Axios** - HTTP client
-- **Recharts** - Data visualization
+- **Axios** - HTTP client for API calls
+- **React Hot Toast** - User notifications
 
 ### Backend
-- **Node.js** - Server runtime
-- **Express.js** - Web framework
-- **SQLite** - Database (development)
-- **JWT** - Authentication
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **SQLite** - Lightweight database
+- **JWT** - Authentication tokens
 - **bcryptjs** - Password hashing
-- **express-validator** - Input validation
-- **Helmet** - Security headers
 
-## 📁 Project Structure
+### Deployment
+- **Netlify** - Frontend hosting
+- **Render** - Backend hosting
+- **GitHub** - Version control
+
+## 📋 Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn package manager
+- Git
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/ashwaniiitbb/et617.git
+cd et617
+```
+
+### 2. Backend Setup
+
+```bash
+cd server
+npm install
+```
+
+Create a `.env` file in the server directory:
+
+```env
+PORT=5001
+JWT_SECRET=your_jwt_secret_here
+NODE_ENV=development
+```
+
+### 3. Frontend Setup
+
+```bash
+cd client
+npm install
+```
+
+### 4. Database Initialization
+
+The database will be automatically initialized when you start the server. Sample data includes:
+
+- **Admin User**: `admin` / `admin123`
+- **Instructor User**: `instructor` / `instructor123`
+- **Learner User**: `ashwani` / `learner123`
+
+### 5. Start Development Servers
+
+**Backend:**
+```bash
+cd server
+npm start
+```
+
+**Frontend:**
+```bash
+cd client
+npm start
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5001
+
+## 📖 Usage Guide
+
+### For Learners
+
+1. **Registration/Login**
+   - Register with email and password
+   - Login with credentials
+   - Session persists across browser refreshes
+
+2. **Course Learning**
+   - Browse available courses
+   - Click on course modules to view content
+   - Mark content as complete
+   - Take interactive quizzes
+   - Track your progress
+
+3. **Analytics Dashboard**
+   - View learning statistics
+   - Check time spent on courses
+   - Monitor quiz scores
+   - Review recent activity
+
+### For Admins
+
+1. **Admin Dashboard**
+   - Login with admin credentials (`admin` / `admin123`)
+   - View all user analytics
+   - Monitor system-wide statistics
+   - Export comprehensive CSV reports
+
+2. **User Management**
+   - View all registered users
+   - Check user activity and progress
+   - Monitor learning patterns
+
+3. **Analytics Export**
+   - Download complete analytics data
+   - Export user clickstream data
+   - Generate detailed reports
+
+## 📊 Analytics & Clickstream Data
+
+The platform tracks comprehensive user interactions:
+
+### Event Types Tracked
+- **Page Views**: Navigation and page interactions
+- **Content Views**: Course and module access
+- **Video Interactions**: Play, pause, time spent
+- **Quiz Attempts**: Scores, completion rates
+- **Progress Updates**: Content completion status
+- **Button Clicks**: User interface interactions
+- **Form Submissions**: Registration, login events
+
+### Data Format
+```csv
+Time,Event context,Component,Event name,Description,Origin,IP address,Username,User Email,User Role,Course Title,Content Type,Action,Score,Progress %,Time Spent (seconds)
+```
+
+## 🏗️ Project Structure
 
 ```
-et617/
+learning-platform/
 ├── client/                 # React frontend
+│   ├── public/
 │   ├── src/
 │   │   ├── components/     # Reusable components
 │   │   ├── contexts/       # React contexts
 │   │   ├── pages/          # Page components
-│   │   └── ...
+│   │   └── utils/          # Utility functions
 │   └── package.json
 ├── server/                 # Node.js backend
+│   ├── database/           # Database files
 │   ├── routes/             # API routes
-│   ├── database/           # Database setup
 │   ├── utils/              # Utility functions
 │   └── package.json
-└── package.json            # Root package.json
+└── README.md
 ```
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ashwaniiitbb/et617.git
-   cd et617
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm run install:all
-   ```
-
-3. **Start development servers**
-   ```bash
-   npm run dev
-   ```
-
-4. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:5001
-
-## 🌐 Deployment
-
-### Backend (Render)
-1. Go to [Render.com](https://render.com)
-2. Create new Web Service
-3. Connect GitHub repository
-4. Configure:
-   - Root Directory: `server`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-5. Add environment variables:
-   ```
-   NODE_ENV=production
-   PORT=10000
-   JWT_SECRET=your-secure-secret
-   CLIENT_URL=https://ashwaniiitbb.github.io/et617
-   ```
-
-### Frontend (GitHub Pages)
-1. Go to [GitHub Pages](https://pages.github.com)
-2. Enable Pages in repository settings
-3. Select `gh-pages` branch
-4. Site will be available at: `https://ashwaniiitbb.github.io/et617`
-
-## 📊 Analytics Features
-
-### Tracked Events
-- **Page Views** - Every page navigation
-- **Content Views** - Video and text content interactions
-- **Video Actions** - Play, pause, seek, volume changes
-- **Quiz Interactions** - Question attempts, submissions, scores
-- **Button Clicks** - All interactive elements
-- **Form Submissions** - Registration, login, profile updates
-- **Search Actions** - Search queries and results
-- **Navigation Events** - Menu clicks, breadcrumb navigation
-- **Error Events** - Failed requests, validation errors
-
-### Analytics Dashboard
-- **User Overview** - Registration, login patterns
-- **Course Analytics** - Popular content, completion rates
-- **Quiz Performance** - Success rates, average scores
-- **Learning Insights** - Time spent, progress patterns
-- **CSV Export** - Download data for external analysis
 
 ## 🔧 API Endpoints
 
@@ -148,46 +204,119 @@ et617/
 - `GET /api/auth/profile` - Get user profile
 
 ### Courses
-- `GET /api/courses` - List all courses
-- `GET /api/courses/:id` - Get course details
-- `GET /api/courses/:id/content/:contentId` - Get content
-- `POST /api/courses/:id/content/:contentId/progress` - Update progress
+- `GET /api/courses` - Get all courses
+- `GET /api/courses/:id` - Get specific course
+- `GET /api/courses/:id/content` - Get course content
 
 ### Analytics
-- `GET /api/analytics/user/:userId` - User analytics
-- `GET /api/analytics/course/:courseId` - Course analytics
-- `GET /api/analytics/export` - Export CSV data
+- `POST /api/analytics/events` - Track user events
+- `GET /api/analytics/user` - Get user analytics
+- `GET /api/analytics/admin/all-users` - Get all users (admin)
+- `GET /api/analytics/admin/export-all` - Export CSV (admin)
 
-## 📝 Database Schema
+## 🎯 Key Features Implementation
 
-### Tables
-- **users** - User accounts and profiles
-- **courses** - Course information
-- **course_content** - Text, video, quiz content
-- **quiz_questions** - Quiz questions and answers
-- **user_progress** - Learning progress tracking
-- **clickstream_events** - Analytics event logging
-- **quiz_attempts** - Quiz submission history
+### Clickstream Analytics
+- Real-time event tracking
+- Comprehensive user interaction logging
+- Detailed analytics dashboard
+- CSV export functionality
+
+### Interactive Learning
+- Multi-format content support
+- Progress tracking system
+- Quiz functionality with scoring
+- Time tracking for learning sessions
+
+### User Experience
+- Responsive design
+- Dark theme interface
+- Intuitive navigation
+- Real-time feedback
+
+## 🚀 Deployment
+
+### Frontend (Netlify)
+1. Connect GitHub repository to Netlify
+2. Set build command: `cd client && npm run build`
+3. Set publish directory: `client/build`
+4. Deploy automatically on push to main branch
+
+### Backend (Render)
+1. Connect GitHub repository to Render
+2. Set build command: `cd server && npm install`
+3. Set start command: `cd server && npm start`
+4. Set environment variables
+5. Deploy automatically on push to main branch
+
+## 🔒 Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- CORS configuration
+- Rate limiting
+- Input validation
+- SQL injection prevention
+
+## 📈 Performance Optimizations
+
+- Lazy loading of components
+- Optimized database queries
+- Efficient state management
+- Caching strategies
+- Compressed assets
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Error**
+   - Ensure SQLite is properly installed
+   - Check database file permissions
+   - Verify database path in configuration
+
+2. **Authentication Issues**
+   - Clear browser localStorage
+   - Check JWT token expiration
+   - Verify user credentials
+
+3. **Analytics Not Tracking**
+   - Check browser console for errors
+   - Verify API endpoint connectivity
+   - Ensure user is authenticated
+
+### Development Tips
+
+- Use browser developer tools for debugging
+- Check server logs for backend issues
+- Monitor network requests for API problems
+- Test with different user roles
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Add tests if applicable
 5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is created for educational purposes as part of the ET 617 Web-Based System Development course.
 
 ## 👨‍💻 Author
 
 **Ashwani Dubey**
 - GitHub: [@ashwaniiitbb](https://github.com/ashwaniiitbb)
-- Email: quant.beyondirr@gmail.com
+- Course: ET 617 - Web-Based System Development
+
+## 🙏 Acknowledgments
+
+- React.js community for the excellent framework
+- Tailwind CSS for the utility-first styling
+- Lucide for the beautiful icons
+- Netlify and Render for hosting services
 
 ---
 
-**Built with ❤️ for ET617 Learning Analytics Assignment**
-# Updated README
+**Note**: This project is developed as an educational assignment and demonstrates modern web development practices with a focus on user experience and analytics tracking.
