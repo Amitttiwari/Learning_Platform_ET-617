@@ -390,4 +390,4 @@ async function insertSampleData() {
   });
 }
 
-module.exports = { initDatabase, db }; 
+module.exports = { initDatabase, db }; # Force database reinit
