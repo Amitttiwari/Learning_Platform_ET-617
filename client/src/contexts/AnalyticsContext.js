@@ -49,8 +49,8 @@ export const AnalyticsProvider = ({ children }) => {
 
     const baseEvent = {
       timestamp: getCurrentTimestamp(),
-      user_id: user.id,
-      username: user.username,
+      user_id: user?.id || null,
+      username: user?.username || 'anonymous',
       ip_address: getSimulatedIP(),
       user_agent: navigator.userAgent,
       origin: 'web',
@@ -67,7 +67,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: pageContext || 'System',
       component: 'Navigation',
       event_name: 'Page viewed',
-      description: `User ${user.username} viewed the ${pageName} page`,
+      description: `User ${user?.username || 'anonymous'} viewed the ${pageName} page`,
       page_name: pageName,
       navigation_type: 'page_view'
     });
@@ -78,7 +78,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: `Course: ${courseTitle}`,
       component: 'System',
       event_name: 'Course viewed',
-      description: `User ${user.username} viewed the course with id '${courseId}'`,
+      description: `User ${user?.username || 'anonymous'} viewed the course with id '${courseId}'`,
       course_id: courseId,
       course_title: courseTitle,
       content_type: 'course'
@@ -90,7 +90,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: `Course: ${courseTitle}`,
       component: contentType === 'quiz' ? 'Quiz' : 'Content',
       event_name: `${contentType} viewed`,
-      description: `User ${user.username} viewed the ${contentType} '${contentTitle}' in course '${courseTitle}'`,
+      description: `User ${user?.username || 'anonymous'} viewed the ${contentType} '${contentTitle}' in course '${courseTitle}'`,
       content_id: contentId,
       content_title: contentTitle,
       content_type: contentType,
@@ -103,7 +103,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: `Course: ${courseTitle}`,
       component: 'Video',
       event_name: `Video ${action}`,
-      description: `User ${user.username} ${action} the video '${videoTitle}'`,
+      description: `User ${user?.username || 'anonymous'} ${action} the video '${videoTitle}'`,
       video_title: videoTitle,
       course_title: courseTitle,
       action: action,
@@ -117,7 +117,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: `Course: ${courseTitle}`,
       component: 'Quiz',
       event_name: 'Quiz attempted',
-      description: `User ${user.username} attempted the quiz '${quizTitle}' with score ${score}/${totalQuestions}`,
+      description: `User ${user?.username || 'anonymous'} attempted the quiz '${quizTitle}' with score ${score}/${totalQuestions}`,
       quiz_title: quizTitle,
       course_title: courseTitle,
       score: score,
@@ -133,7 +133,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: `Course: ${courseTitle}`,
       component: 'Progress',
       event_name: isCompleted ? 'Content completed' : 'Progress updated',
-      description: `User ${user.username} ${isCompleted ? 'completed' : 'updated progress on'} '${contentTitle}'`,
+      description: `User ${user?.username || 'anonymous'} ${isCompleted ? 'completed' : 'updated progress on'} '${contentTitle}'`,
       content_title: contentTitle,
       course_title: courseTitle,
       action: isCompleted ? 'mark_complete' : 'progress_update',
@@ -147,7 +147,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: context || 'System',
       component: 'Button',
       event_name: 'Button clicked',
-      description: `User ${user.username} clicked the '${buttonName}' button on ${pageName}`,
+      description: `User ${user?.username || 'anonymous'} clicked the '${buttonName}' button on ${pageName}`,
       button_name: buttonName,
       page_name: pageName,
       action: 'button_click'
@@ -159,7 +159,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: 'System',
       component: 'Form',
       event_name: 'Form submitted',
-      description: `User ${user.username} submitted the '${formName}' form on ${pageName}`,
+      description: `User ${user?.username || 'anonymous'} submitted the '${formName}' form on ${pageName}`,
       form_name: formName,
       page_name: pageName,
       action: 'form_submission',
@@ -172,7 +172,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: 'System',
       component: 'Navigation',
       event_name: 'Navigation',
-      description: `User ${user.username} navigated from '${fromPage}' to '${toPage}'`,
+      description: `User ${user?.username || 'anonymous'} navigated from '${fromPage}' to '${toPage}'`,
       navigation_type: navigationType,
       from_page: fromPage,
       to_page: toPage,
@@ -185,7 +185,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: 'System',
       component: 'Search',
       event_name: 'Search performed',
-      description: `User ${user.username} searched for '${searchTerm}'`,
+      description: `User ${user?.username || 'anonymous'} searched for '${searchTerm}'`,
       search_term: searchTerm,
       search_results: resultsCount,
       action: 'search'
@@ -197,7 +197,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: 'System',
       component: 'Error',
       event_name: 'Error occurred',
-      description: `User ${user.username} encountered a ${errorType} error on ${pageName}`,
+      description: `User ${user?.username || 'anonymous'} encountered a ${errorType} error on ${pageName}`,
       error_type: errorType,
       error_message: errorMessage,
       page_name: pageName,
@@ -211,7 +211,7 @@ export const AnalyticsProvider = ({ children }) => {
       component: 'Authentication',
       event_name: success ? 'User logged in' : 'Login failed',
       description: success 
-        ? `User ${user.username} logged in successfully`
+        ? `User ${user?.username || 'anonymous'} logged in successfully`
         : `Login failed for user: ${errorMessage}`,
       action: 'login',
       success: success,
@@ -224,7 +224,7 @@ export const AnalyticsProvider = ({ children }) => {
       event_context: 'System',
       component: 'Authentication',
       event_name: 'User logged out',
-      description: `User ${user.username} logged out`,
+      description: `User ${user?.username || 'anonymous'} logged out`,
       action: 'logout',
       success: true
     });
