@@ -22,6 +22,7 @@ import {
   Zap
 } from 'lucide-react';
 import axios from 'axios';
+import Navbar from '../components/Navbar';
 
 const Profile = ({ onNavigate }) => {
   const { user, logout } = useAuth();
@@ -173,39 +174,11 @@ const Profile = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">My Profile</h1>
-                <p className="text-slate-400 text-sm">Track your learning journey</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="btn btn-ghost"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={handleLogout}
-                className="btn btn-danger"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Navbar currentPage="profile" onNavigate={onNavigate} user={user} />
+      
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Card */}
           <div className="lg:col-span-1">
@@ -490,6 +463,7 @@ const Profile = ({ onNavigate }) => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>
