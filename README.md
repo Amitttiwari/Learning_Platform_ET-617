@@ -1,322 +1,226 @@
 # 🎓 Learning Platform - Interactive Web-Based Learning System
 
-A comprehensive web-based learning platform with user authentication, interactive content (text, video, quizzes), detailed clickstream analytics, and real-time progress tracking.
+A comprehensive **web-based learning platform** featuring user authentication, interactive multi-format content, real-time analytics, and clickstream tracking — designed for modern, engaging education.
+
+---
 
 ## 🌟 Features
 
 ### 👤 User Management
-- **User Registration & Authentication** with JWT tokens
+- **JWT-based Registration & Login** for secure access
 - **Role-based Access Control** (Admin, Instructor, Learner)
-- **Session Management** with persistent login
-- **User Profiles** with learning statistics
+- **Persistent Sessions** across browser refreshes
+- **User Profiles** with progress statistics
 
 ### 📚 Interactive Learning Content
-- **Multi-format Content**: Text, Video, and Interactive Quizzes
-- **Progress Tracking**: Mark as complete/unread functionality
-- **Real-time Learning Analytics**: Time spent, completion rates
-- **Course Management**: Multiple courses with structured content
+- **Multi-format Support**: Text, Video, Quizzes
+- **Progress Tracking** with complete/unread status
+- **Real-time Analytics**: time spent, completion rate
+- **Course Management** with structured modules
 
-### 📊 Advanced Analytics & Clickstream Tracking
-- **Comprehensive Event Tracking**: Page views, content interactions, quiz attempts
-- **Real-time Analytics Dashboard**: Learning progress, time spent, scores
-- **Admin Analytics**: Complete user activity overview
-- **CSV Export**: Download detailed analytics data
-- **Clickstream Data**: Detailed user interaction logs
+### 📊 Analytics & Clickstream Tracking
+- **Event Tracking**: page views, content interactions, quiz attempts
+- **Admin Dashboard**: global stats and individual learner progress
+- **CSV Export** for in-depth reporting
+- **Detailed Clickstream Data** for research and improvement
 
 ### 🎨 Modern UI/UX
-- **Dark Theme**: Modern, eye-friendly interface
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Intuitive Navigation**: Consistent navbar across all pages
-- **Interactive Elements**: Hover effects, loading states, feedback
+- **Dark Theme** for eye comfort
+- **Fully Responsive** (desktop, tablet, mobile)
+- **Smooth Navigation** with consistent layouts
+- **Interactive Feedback** with hover effects & loaders
 
-## 🚀 Live Demo
+---
 
-- **Frontend**: [Netlify Deployment](https://loquacious-sawine-ecfc59.netlify.app)
-- **Backend API**: [Render Deployment](https://learning-platform-backend-knkr.onrender.com)
-
-## 🛠️ Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend
-- **React.js** - Modern UI framework
-- **Tailwind CSS** - Utility-first CSS framework
-- **Lucide React** - Beautiful icons
-- **Axios** - HTTP client for API calls
-- **React Hot Toast** - User notifications
+- React.js  
+- Tailwind CSS  
+- Lucide React Icons  
+- Axios (API calls)  
+- React Hot Toast (notifications)
 
 ### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
-- **SQLite** - Lightweight database
-- **JWT** - Authentication tokens
-- **bcryptjs** - Password hashing
+- Node.js + Express.js  
+- SQLite (lightweight DB)  
+- JWT (authentication)  
+- bcryptjs (password hashing)
 
 ### Deployment
-- **Netlify** - Frontend hosting
-- **Render** - Backend hosting
-- **GitHub** - Version control
+- GitHub (version control)
+---
 
 ## 📋 Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn package manager
+- Node.js v16+
+- npm or yarn
 - Git
+
+---
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+1. **Clone the Repository**
+Backend Setup
 
-```bash
-git clone https://github.com/ashwaniiitbb/et617.git
-cd et617
 ```
-
-### 2. Backend Setup
-
-```bash
 cd server
 npm install
+Create .env in server/:
 ```
 
-Create a `.env` file in the server directory:
-
-```env
+```
 PORT=5001
 JWT_SECRET=your_jwt_secret_here
 NODE_ENV=development
 ```
+Frontend Setup
 
-### 3. Frontend Setup
-
-```bash
-cd client
+```
+cd ../client
 npm install
 ```
+Database Initialization
 
-### 4. Database Initialization
+Auto-initializes on server start
 
-The database will be automatically initialized when you start the server. Sample data includes:
+Sample accounts:
 
-- **Admin User**: `admin` / `admin123`
-- **Instructor User**: `instructor` / `instructor123`
-- **Learner User**: `ashwani` / `learner123`
+Admin: admin / admin123
 
-### 5. Start Development Servers
+Instructor: instructor / instructor123
 
-**Backend:**
-```bash
+Learner: Amit / learner123
+
+Run Development Servers
+
+```
+# Backend
 cd server
 npm start
 ```
-
-**Frontend:**
-```bash
+```
+# Frontend
 cd client
 npm start
 ```
+📖 Usage Guide
+Learners
+Register/Login
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5001
+Browse & enroll in courses
 
-## 📖 Usage Guide
+Mark lessons complete
 
-### For Learners
+Attempt quizzes
 
-1. **Registration/Login**
-   - Register with email and password
-   - Login with credentials
-   - Session persists across browser refreshes
+Track stats in Learner Dashboard
 
-2. **Course Learning**
-   - Browse available courses
-   - Click on course modules to view content
-   - Mark content as complete
-   - Take interactive quizzes
-   - Track your progress
+Admins
+Login with admin credentials
 
-3. **Analytics Dashboard**
-   - View learning statistics
-   - Check time spent on courses
-   - Monitor quiz scores
-   - Review recent activity
+Access Admin Dashboard
 
-### For Admins
+Monitor learner analytics
 
-1. **Admin Dashboard**
-   - Login with admin credentials (`admin` / `admin123`)
-   - View all user analytics
-   - Monitor system-wide statistics
-   - Export comprehensive CSV reports
+Export CSV reports
 
-2. **User Management**
-   - View all registered users
-   - Check user activity and progress
-   - Monitor learning patterns
+Manage user activity
 
-3. **Analytics Export**
-   - Download complete analytics data
-   - Export user clickstream data
-   - Generate detailed reports
+📊 Analytics & Clickstream Data
+Tracked Events:
 
-## 📊 Analytics & Clickstream Data
+Page & content views
 
-The platform tracks comprehensive user interactions:
+Video plays/pauses
 
-### Event Types Tracked
-- **Page Views**: Navigation and page interactions
-- **Content Views**: Course and module access
-- **Video Interactions**: Play, pause, time spent
-- **Quiz Attempts**: Scores, completion rates
-- **Progress Updates**: Content completion status
-- **Button Clicks**: User interface interactions
-- **Form Submissions**: Registration, login events
+Quiz attempts & scores
 
-### Data Format
-```csv
-Time,Event context,Component,Event name,Description,Origin,IP address,Username,User Email,User Role,Course Title,Content Type,Action,Score,Progress %,Time Spent (seconds)
+Completion updates
+
+Button clicks & form submissions
+
+Data Format:
+
 ```
-
-## 🏗️ Project Structure
-
+Time,Event context,Component,Event name,Description,Origin,IP,Username,Email,Role,Course Title,Content Type,Action,Score,Progress %,Time Spent (seconds)
+```
+🏗 Project Structure
 ```
 learning-platform/
-├── client/                 # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── contexts/       # React contexts
-│   │   ├── pages/          # Page components
-│   │   └── utils/          # Utility functions
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── database/           # Database files
-│   ├── routes/             # API routes
-│   ├── utils/              # Utility functions
-│   └── package.json
+├── client/         # React frontend
+│   ├── components/
+│   ├── contexts/
+│   ├── pages/
+│   └── utils/
+├── server/         # Node.js backend
+│   ├── database/
+│   ├── routes/
+│   └── utils/
 └── README.md
 ```
+🔧 API Endpoints
+Authentication
+```
 
-## 🔧 API Endpoints
+POST /api/auth/register
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
+POST /api/auth/login
 
-### Courses
-- `GET /api/courses` - Get all courses
-- `GET /api/courses/:id` - Get specific course
-- `GET /api/courses/:id/content` - Get course content
+GET /api/auth/profile
+```
 
-### Analytics
-- `POST /api/analytics/events` - Track user events
-- `GET /api/analytics/user` - Get user analytics
-- `GET /api/analytics/admin/all-users` - Get all users (admin)
-- `GET /api/analytics/admin/export-all` - Export CSV (admin)
+Courses
+```
+GET /api/courses
 
-## 🎯 Key Features Implementation
+GET /api/courses/:id
 
-### Clickstream Analytics
-- Real-time event tracking
-- Comprehensive user interaction logging
-- Detailed analytics dashboard
-- CSV export functionality
+GET /api/courses/:id/content
+```
+Analytics
+```
+POST /api/analytics/events
 
-### Interactive Learning
-- Multi-format content support
-- Progress tracking system
-- Quiz functionality with scoring
-- Time tracking for learning sessions
+GET /api/analytics/user
 
-### User Experience
-- Responsive design
-- Dark theme interface
-- Intuitive navigation
-- Real-time feedback
+GET /api/analytics/admin/all-users
 
-## 🚀 Deployment
+GET /api/analytics/admin/export-all
+```
+🔒 Security
+JWT authentication
 
-### Frontend (Netlify)
-1. Connect GitHub repository to Netlify
-2. Set build command: `cd client && npm run build`
-3. Set publish directory: `client/build`
-4. Deploy automatically on push to main branch
+bcrypt password hashing
 
-### Backend (Render)
-1. Connect GitHub repository to Render
-2. Set build command: `cd server && npm install`
-3. Set start command: `cd server && npm start`
-4. Set environment variables
-5. Deploy automatically on push to main branch
+CORS configuration
 
-## 🔒 Security Features
+Rate limiting
 
-- JWT-based authentication
-- Password hashing with bcrypt
-- CORS configuration
-- Rate limiting
-- Input validation
-- SQL injection prevention
+SQL injection prevention
 
-## 📈 Performance Optimizations
+📈 Performance
+Lazy-loading components
 
-- Lazy loading of components
-- Optimized database queries
-- Efficient state management
-- Caching strategies
-- Compressed assets
+Optimized DB queries
 
-## 🐛 Troubleshooting
+State management efficiency
 
-### Common Issues
+Asset compression
 
-1. **Database Connection Error**
-   - Ensure SQLite is properly installed
-   - Check database file permissions
-   - Verify database path in configuration
+🐛 Troubleshooting
+DB Connection Error
 
-2. **Authentication Issues**
-   - Clear browser localStorage
-   - Check JWT token expiration
-   - Verify user credentials
+Check SQLite installation & file permissions
 
-3. **Analytics Not Tracking**
-   - Check browser console for errors
-   - Verify API endpoint connectivity
-   - Ensure user is authenticated
+Auth Issues
 
-### Development Tips
+Clear localStorage
 
-- Use browser developer tools for debugging
-- Check server logs for backend issues
-- Monitor network requests for API problems
-- Test with different user roles
+Verify JWT expiration
 
-## 🤝 Contributing
+Analytics Not Tracking
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+Check browser console
 
-## 📄 License
-
-This project is created for educational purposes as part of the ET 617 Web-Based System Development course.
-
-## 👨‍💻 Author
-
-**Ashwani Dubey**
-- GitHub: [@ashwaniiitbb](https://github.com/ashwaniiitbb)
-- Course: ET 617 - Web-Based System Development
-
-## 🙏 Acknowledgments
-
-- React.js community for the excellent framework
-- Tailwind CSS for the utility-first styling
-- Lucide for the beautiful icons
-- Netlify and Render for hosting services
-
----
-
-**Note**: This project is developed as an educational assignment and demonstrates modern web development practices with a focus on user experience and analytics tracking.
+Ensure API connectivit
